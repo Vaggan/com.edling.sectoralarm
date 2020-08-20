@@ -13,11 +13,6 @@ Author: Christopher Edling
 This Library is used to communicate with Sector Alarm.
 
 ---
-### Contribute, post improvements or bugs
-
-[<img src="https://s18955.pcdn.co/wp-content/uploads/2018/02/github.png" width="25"/> Please post on GitHub](https://github.com/Vaggan)
-
----
 ### Donate
 
 If you like the app, you can always donate so i can keep improving it :)
