@@ -1,0 +1,15 @@
+{
+  "name": "com.edling.sectoralarm",
+  "version": "1.0.0",
+  "main": "app.js",
+  "engines": {
+    "node": ">=12.16.1"
+  },
+  "devDependencies": {
+    "eslint": "^7.6.0",
+    "eslint-config-athom": "^2.1.0"
+  },
+  "dependencies": {
+    "sectoralarm": "^2.0.6"
+  }
+}

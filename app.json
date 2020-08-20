@@ -1,0 +1,212 @@
+{
+  "id": "com.edling.sectoralarm",
+  "version": "0.0.1",
+  "compatibility": ">=1.5.0",
+  "sdk": 2,
+  "name": {
+    "en": "Sector Alarm",
+    "sv": "Sector Alarm"
+  },
+  "description": {
+    "en": "Add suppor for Sctor Alarm.",
+    "sv": "Lägg till stöd för Sector Alarm."
+  },
+  "category": [
+    "security"
+  ],
+  "permissions": [],
+  "images": {
+    "large": "/assets/images/logo.png",
+    "small": "/assets/images/logo.png"
+  },
+  "author": {
+    "name": "Christopher Edling",
+    "email": "christopher.edling@gmail.com"
+  },
+  "drivers": [
+    {
+      "id": "sector_alarm_central",
+      "name": {
+        "en": "Sector Alarm Central",
+        "sv": "Sector Alarm Central"
+      },
+      "class": "homealarm",
+      "capabilities": [
+        "homealarm_state"
+      ],
+      "capabilitiesOptions": {
+        "homealarm_state": {
+          "type": "enum",
+          "title": {
+            "en": "Home Alarm state",
+            "sv": "Hemlarmsstatus"
+          },
+          "values": [
+            {
+              "id": "armed",
+              "title": {
+                "en": "Armed",
+                "sv": "Larmat"
+              }
+            },
+            {
+              "id": "disarmed",
+              "title": {
+                "en": "Disarmed",
+                "sv": "Avlarmat"
+              }
+            },
+            {
+              "id": "partially_armed",
+              "title": {
+                "en": "Partially armed",
+                "sv": "Delvis larmat"
+              }
+            }
+          ],
+          "getable": true,
+          "setable": true,
+          "uiComponent": "picker"
+        }
+      },
+      "images": {
+        "large": "/drivers/sector_alarm_central/assets/images/large.png",
+        "small": "/drivers/sector_alarm_central/assets/images/small.png"
+    },
+    "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices"
+          }
+        },
+        {
+            "id": "add_my_devices",
+            "template": "add_devices"
+        }
+      ]
+    }
+  ],
+  "flow": {
+    "triggers": [
+      {
+        "id": "homealarm_state_changed",
+        "title": {
+          "en": "The state changed",
+          "sv": "Statusen ändrad"
+        },
+        "args": [
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "armed",
+                "title": {
+                  "en": "Armed",
+                  "sv": "Larmat"
+                }
+              },
+              {
+                "id": "disarmed",
+                "title": {
+                  "en": "Disarmed",
+                  "sv": "Avlarmat"
+                }
+              },
+              {
+                "id": "partially_armed",
+                "title": {
+                  "en": "Partially armed",
+                  "sv": "Delvis larmat"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "homealarm_state_is",
+        "title": {
+          "en": "The state is !{{|not}}",
+          "sv": "Statusen är !{{|inte}}"
+        },
+        "args": [
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "armed",
+                "title": {
+                  "en": "Armed",
+                  "sv": "Larmat"
+                }
+              },
+              {
+                "id": "disarmed",
+                "title": {
+                  "en": "Disarmed",
+                  "sv": "Avlarmat"
+                }
+              },
+              {
+                "id": "partially_armed",
+                "title": {
+                  "en": "Partially armed",
+                  "sv": "Delvis larmat"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "set_homealarm_state",
+        "title": {
+          "en": "Set state",
+          "sv": "Ställ in status"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "class=homealarm&capabilities=homealarm_state"
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "values": [
+              {
+                "id": "armed",
+                "title": {
+                  "en": "Armed",
+                  "sv": "Larmat"
+                }
+              },
+              {
+                "id": "disarmed",
+                "title": {
+                  "en": "Disarmed",
+                  "sv": "Avlarmat"
+                }
+              },
+              {
+                "id": "partially_armed",
+                "title": {
+                  "en": "Partially armed",
+                  "sv": "Delvis larmat"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

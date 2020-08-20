@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+    <head>
+
+    	<!-- The '/homey.js' script must be included in your settings view to work -->
+	    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+
+    </head>
+    <body>
+
+        <h1 data-i18n="settings.title">
+        	<!--
+        	This field will automatically be filled by a translated string with key 'settings.title'.
+        	Read more about translations at Internationalization.
+        	-->
+        </h1>
+        <p data-i18n="settings.subtitle">
+        	<!--
+        	This field will also be translated
+			-->
+        </p>
+
+        <fieldset>
+            <legend>My Settings</legend>
+
+            <div class="field row">
+                <label for="username" data-i18n="settings.username">Username</label>
+                <input id="username" type="email" value="" />
+            </div>
+            <div class="field row">
+                <label for="password" data-i18n="settings.password">Password</label>
+                <input id="password" type="password" value="" />
+            </div>
+            <div class="field row">
+                <label for="siteid">SiteId</label>
+                <input id="siteid" type="text" value="" />
+            </div>
+            <div class="field row">
+                <label for="code">Code</label>
+                <input id="code" type="text" value="" />
+            </div>
+
+        </fieldset>
+
+        <button id="save" class="right">Save changes</button>
+
+        <script type="text/javascript">
+
+        // a method named 'onHomeyReady' must be present in your code
+        function onHomeyReady( Homey ){
+
+	        // Tell Homey we're ready to be displayed
+            Homey.ready();
+
+            var usernameElement = document.getElementById('username');
+            var passwordElement = document.getElementById('password');
+            var siteidElement = document.getElementById('siteid');
+            var codeElement = document.getElementById('code');
+            var saveElement = document.getElementById('save');
+
+            Homey.get('username', function( err, username ) {
+	           if( err ) return Homey.alert( err );
+			   usernameElement.value = username;
+	        });
+
+            Homey.get('password', function( err, password ) {
+            if( err ) return Homey.alert( err );
+            passwordElement.value = password;
+            });
+
+            Homey.get('siteid', function( err, siteid ) {
+            if( err ) return Homey.alert( err );
+            siteidElement.value = siteid;
+            });
+
+            Homey.get('code', function( err, code ) {
+            if( err ) return Homey.alert( err );
+            codeElement.value = code;
+            });
+
+	        saveElement.addEventListener('click', function(e) {
+
+	            Homey.set('username', usernameElement.value, function( err ){
+		            if( err ) return Homey.alert( err );
+	            });
+	            Homey.set('password', passwordElement.value, function( err ){
+		            if( err ) return Homey.alert( err );
+	            });
+	            Homey.set('siteid', siteidElement.value, function( err ){
+		            if( err ) return Homey.alert( err );
+	            });
+	            Homey.set('code', codeElement.value, function( err ){
+		            if( err ) return Homey.alert( err );
+                });
+                Homey.alert('Done!');
+
+	        });
+        }
+        </script>
+
+    </body>
+</html>
