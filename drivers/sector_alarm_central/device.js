@@ -3,182 +3,191 @@
 const Homey = require('homey');
 const sectoralarm = require('sectoralarm');
 
+const POLL_INTERVAL = 30000; // 30 seconds
+const ALARMSTATE = {
+  ARMED: 'armed',
+  DISARMED: 'disarmed',
+  PARTIALYARMED: {
+    SECTOR: 'partialArmed',
+    HOMEY: 'partially_armed',
+  },
+};
+const settings = {
+  USERNAME: 'username',
+  PASSWORD: 'password',
+  SITEID: 'siteid',
+  CODE: 'code',
+};
+
 class MyDevice extends Homey.Device {
 
   async onInit() {
     this.log('MyDevice has been inited');
 
-    const username = Homey.ManagerSettings.get('username');
-    const password = Homey.ManagerSettings.get('password');
-    const siteid = Homey.ManagerSettings.get('siteid');
+    const username = this.homey.settings.get(settings.USERNAME);
+    const password = this.homey.settings.get(settings.PASSWORD);
+    const siteid = this.homey.settings.get(settings.SITEID);
 
     await sectoralarm.connect(username, password, siteid, null)
-      .then(async site => {
+      .then(site => {
         this._site = site;
+      })
+      .catch(error => {
+        this.log(`Error: ${error}`);
       });
+    try {
+      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), POLL_INTERVAL);
+    } catch (e) {
+      this.log(e.message);
+    }
 
-    const POLL_INTERVAL = 30000; // 30 seconds
-    this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), POLL_INTERVAL);
-
-    this.setInitState();
+    await this.setInitState();
     this.registerCapabilityListener('homealarm_state', this.onCapabilityChanged.bind(this));
-    this.registerFlowCardCondition();
-    this.registerFlowCardAction();
+    await this.registerFlowCardCondition();
+    await this.registerFlowCardAction();
   }
 
-  setInitState() {
+  async setInitState() {
     this._site.status()
       .then(async status => {
-        let armedState = 'disarmed';
+        let armedState = ALARMSTATE.DISARMED;
         switch (JSON.parse(status).armedStatus) {
-          case 'armed':
-            armedState = 'armed';
-            break;
-          case 'disarmed':
-            armedState = 'disarmed';
-            break;
-          case 'partialArmed':
-            armedState = 'partially_armed';
+          case ALARMSTATE.PARTIALYARMED.SECTOR:
+            armedState = ALARMSTATE.PARTIALYARMED.HOMEY;
             break;
           default:
-            break;
+            armedState = JSON.parse(status).armedStatus;
         }
         this.setCapabilityValue('homealarm_state', armedState);
+      })
+      .catch(error => {
+        this.log(`Error: ${error}`);
       });
   }
 
-  registerFlowCardCondition() {
-    const rainingCondition = new Homey.FlowCardCondition('homealarm_state_is');
-    rainingCondition
-      .register()
+  async registerFlowCardCondition() {
+    const alarmStateCondition = this.homey.flow.getConditionCard('homealarm_state_is');
+    alarmStateCondition
       .registerRunListener(async (args, state) => {
         this._site.status()
           .then(async status => {
             switch (state) {
-              case 'armed':
-                Promise.resolve(this.getCapabilityValue('homealarm_state') === 'armed');
-                break;
-              case 'disarmed':
-                Promise.resolve(this.getCapabilityValue('homealarm_state') === 'disarmed');
-                break;
-              case 'partialArmed':
-                Promise.resolve(this.getCapabilityValue('homealarm_state') === 'partially_armed');
-                break;
+              case ALARMSTATE.PARTIALYARMED.SECTOR:
+                return this.getCapabilityValue('homealarm_state') === ALARMSTATE.PARTIALYARMED.HOMEY;
               default:
-                Promise.resolve(false);
-                break;
+                return this.getCapabilityValue('homealarm_state') === state;
             }
+          })
+          .catch(error => {
+            this.log(`Error: ${error}`);
           });
       });
   }
 
-  registerFlowCardAction() {
-    const code = Homey.ManagerSettings.get('code');
-    const stopRainingAction = new Homey.FlowCardAction('set_homealarm_state');
-    stopRainingAction
-      .register()
+  async registerFlowCardAction() {
+    const code = this.homey.settings.get(settings.CODE);
+    const alarmStateAction = this.homey.flow.getActionCard('set_homealarm_state');
+    alarmStateAction
       .registerRunListener(async (args, state) => {
         switch (state) {
-          // case 'armed':
-          //   this._site.arm(code);
-          //   break;
-          case 'disarmed':
+          case ALARMSTATE.ARMED:
+            this._site.arm(code);
+            break;
+          case ALARMSTATE.DISARMED:
             this._site.disarm(code);
             break;
-          case 'partialArmed':
+          case ALARMSTATE.PARTIALYARMED.HOMEY:
             this._site.partialArm(code);
             break;
           default:
-            Promise.resolve(false);
             break;
         }
       });
-    Promise.resolve(true);
   }
 
   pollAlarmStatus() {
-    this._site.status()
-      .then(async status => {
-        this.onAlarmUpdate(status);
-        Promise.resolve();
-      });
+    try {
+      this._site.status()
+        .then(async status => {
+          this.onAlarmUpdate(status);
+          Promise.resolve().catch(this.log);
+        })
+        .catch(error => {
+          this.log(`Error: ${error}`);
+        });
+    } catch (e) {
+      this.log(e.message);
+    }
   }
 
   onAlarmUpdate(status) {
-    let armedState = 'disarmed';
-
-    // this.log('---Armed status---');
-    // this.log(`Curren: ${this.getCapabilityValue('homealarm_state')}`);
-    // this.log(`New: ${JSON.parse(status).armedStatus}`);
-
-    switch (JSON.parse(status).armedStatus) {
-      case 'armed':
-        armedState = 'armed';
-        break;
-      case 'disarmed':
-        armedState = 'disarmed';
-        break;
-      case 'partialArmed':
-        armedState = 'partially_armed';
-        break;
-      default:
-        break;
+    try {
+      let armedState = ALARMSTATE.DISARMED;
+      switch (JSON.parse(status).armedStatus) {
+        case ALARMSTATE.PARTIALYARMED.SECTOR:
+          armedState = ALARMSTATE.PARTIALYARMED.HOMEY;
+          break;
+        default:
+          armedState = JSON.parse(status).armedStatus;
+          break;
+      }
+      if (armedState !== this.getCapabilityValue('homealarm_state')) {
+        this.setCapabilityValue('homealarm_state', armedState);
+        this.triggerFlow(armedState);
+      }
+    } catch (e) {
+      this.log(e.message);
     }
-
-    if (armedState !== this.getCapabilityValue('homealarm_state')) {
-      this.setCapabilityValue('homealarm_state', armedState);
-      this.triggerFlow(armedState);
-    }
-
-    Promise.resolve();
   }
 
   triggerFlow(triggeredState) {
-    const state = { state: triggeredState };
-    const stateChangedTrigger = new Homey.FlowCardTrigger('homealarm_state_changed');
-    stateChangedTrigger
-      .register()
-      .trigger(null, state)
-      .catch(this.error)
-      .then(this.log('homealarm_state_changed triggered'));
+    try {
+      const state = { state: triggeredState };
+      const stateChangedTrigger = this.homey.flow.getTriggerCard('homealarm_state_changed');
+      stateChangedTrigger
+        .trigger(null, state)
+        .then(this.log(`homealarm_state_changed trigger: ${triggeredState}`))
+        .catch(error => {
+          this.log(`Error: ${error}`);
+        });
+    } catch (e) {
+      this.log(e.message);
+    }
   }
 
   onAdded() {
-    this.log('Device added');
-    this.pollAlarmStatus();
+    try {
+      this.pollAlarmStatus();
+    } catch (e) {
+      this.log(e.message);
+    }
   }
 
-  onCapabilityChanged(value, opts, callback) {
-    const code = Homey.ManagerSettings.get('code');
+  onCapabilityChanged(value, opts) {
+    const code = this.homey.settings.get(settings.CODE);
     if (code === '') {
-      callback('error', false);
+      Promise.reject();
     }
-
     switch (value) {
-      // case 'armed':
-      //   this._site.arm(code).catch(error => {
-      //     this.log(`Error: ${error.code} Message: ${error.message}`);
-      //   });
-      //   break;
-      case 'disarmed':
+      case ALARMSTATE.ARMED:
+        this._site.arm(code).catch(error => {
+          this.log(`Error: ${error.code} Message: ${error.message}`);
+        });
+        break;
+      case ALARMSTATE.DISARMED:
         this._site.disarm(code).catch(error => {
           this.log(`Error: ${error.code} Message: ${error.message}`);
         });
         break;
-      case 'partially_armed':
+      case ALARMSTATE.PARTIALYARMED.HOMEY:
         this._site.partialArm(code).catch(error => {
-          // if (error.code === 'ERR_INVALID_SESSION') {
-          //   this._site.login()
-          //     .then(() => this._site.partialArm(code));
-          // } else {
           this.log(`Error: ${error.code} Message: ${error.message}`);
-          // }
         });
         break;
       default:
         break;
     }
-    callback(null, value);
+    Promise.resolve();
   }
 
 }

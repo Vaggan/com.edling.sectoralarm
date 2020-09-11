@@ -1,6 +1,6 @@
 # Sector Alarm
 
-Add suppor for Sctor Alarm home security.
+Add suppor for Sctor Alarm home security to Homey.
 
 ### Features:
 * Set alarm state (armed/disarmed/partially armed).

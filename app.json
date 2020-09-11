@@ -1,34 +1,47 @@
 {
   "id": "com.edling.sectoralarm",
   "version": "0.0.1",
-  "compatibility": ">=1.5.0",
-  "sdk": 2,
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "brandColor": "#FF1C1C",
   "name": {
     "en": "Sector Alarm",
     "sv": "Sector Alarm"
   },
   "description": {
-    "en": "Add suppor for Sctor Alarm.",
-    "sv": "Lägg till stöd för Sector Alarm."
+    "en": "Home of Safety",
+    "sv": "Din trygghet. Vår passion."
   },
   "category": [
     "security"
   ],
   "permissions": [],
   "images": {
-    "large": "/assets/images/logo.png",
-    "small": "/assets/images/logo.png"
+    "large": "/assets/images/large.png",
+    "small": "/assets/images/small.png"
   },
   "author": {
     "name": "Christopher Edling",
     "email": "christopher.edling@gmail.com"
   },
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "christopheredling"
+      }
+    }
+  },
+  "bugs": {
+    "url": "https://github.com/Vaggan/com.edling.sectoralarm/issues"
+  },
+  "homepage": "https://github.com/Vaggan/com.edling.sectoralarm",
+  "support": "mailto:christopher.edling@gmail.com",
   "drivers": [
     {
       "id": "sector_alarm_central",
       "name": {
-        "en": "Sector Alarm Central",
-        "sv": "Sector Alarm Central"
+        "en": "Control panel",
+        "sv": "Manöverpanel"
       },
       "class": "homealarm",
       "capabilities": [

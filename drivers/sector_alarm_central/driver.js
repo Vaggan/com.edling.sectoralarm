@@ -9,33 +9,31 @@ class MyDriver extends Homey.Driver {
     this.log('MyDriver has been inited');
   }
 
-  onPairListDevices(data, callback) {
-    const username = Homey.ManagerSettings.get('username');
-    const password = Homey.ManagerSettings.get('password');
-
+  async onPairListDevices() {
+    const username = this.homey.settings.get('username');
+    const password = this.homey.settings.get('password');
     if (username === '' || password === '') {
-      callback(null, null);
+      throw new Error('No credentials, please enter credentials in settings.');
     }
 
-    sectoralarm.connect(username, password, null, null)
+    let devices;
+    await sectoralarm.connect(username, password, null, null)
       .then(async site => {
         await site.status()
           .then(async status => {
-            if (Homey.ManagerSettings.get('siteid') === '') {
-              Homey.ManagerSettings.set('siteid', JSON.parse(status).siteId);
+            if (this.homey.settings.get('siteid') === '') {
+              this.homey.settings.set('siteid', JSON.parse(status).siteId);
             }
-
-            const devices = [
+            devices = [
               {
                 name: JSON.parse(status).name,
                 data: { id: JSON.parse(status).siteId },
               },
             ];
-            callback(null, devices);
           });
       });
 
-    callback(null, null);
+    return devices;
   }
 
 }
