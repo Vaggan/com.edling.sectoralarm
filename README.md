@@ -9,6 +9,13 @@ Add suppor for Sctor Alarm home security to Homey.
 Author: Christopher Edling
 
 ---
+##### Instructions:
+* Application settings
+  * Please enter the login information for My Pages and alarm code.
+  * SiteId does not need to be filled in, that field is set automatically at the first login.
+* Then add your alarm as a device.
+
+---
 ##### [Sector Alarm Node.js Library](https://github.com/perbrage/sectoralarm) by [perbrage](https://github.com/perbrage)
 This Library is used to communicate with Sector Alarm.
 
