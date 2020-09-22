@@ -2,5 +2,9 @@
   "0.0.1": {
     "en": "First testable version",
     "sv": "Första testbara versionen"
+  },
+  "0.0.2": {
+    "en": "Changed the settings page",
+    "sv": "Ändrade settings vyn"
   }
 }
