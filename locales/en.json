@@ -1,6 +1,20 @@
 {
-    "settings": {
-        "username": "Username",
-        "password": "Password"
+  "settings": {
+    "alert": {
+      "settingssaved": "Your changes have been saved."
+    },
+    "button": {
+      "save": "Save changes"
+    },
+    "header": {
+      "information": "Information",
+      "settings": "Settings"
+    },
+    "field": {
+      "username": "Username",
+      "password": "Password",
+      "code": "Code",
+      "siteid": "SiteId"
     }
+  }
 }

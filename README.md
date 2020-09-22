@@ -29,5 +29,8 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
+##### Version: 0.0.2
+- Changed the settings page
+
 ##### Version: 0.0.1
 - Initial release

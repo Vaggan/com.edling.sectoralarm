@@ -1,6 +1,20 @@
 {
-    "settings": {
-        "username": "Användarnamn",
-        "password": "Lösenord"
+  "settings": {
+    "alert": {
+      "settingssaved": "Dina ändringar har sparats."
+    },
+    "button": {
+      "save": "Spara"
+    },
+    "header": {
+      "information": "Information",
+      "settings": "Inställningar"
+    },
+    "field": {
+      "username": "Användarnamn",
+      "password": "Lösenord",
+      "code": "Larmkod",
+      "siteid": "SiteId"
     }
+  }
 }

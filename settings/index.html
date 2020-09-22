@@ -1,102 +1,91 @@
 <!doctype html>
 <html>
-    <head>
 
-    	<!-- The '/homey.js' script must be included in your settings view to work -->
-	    <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+<head>
+  <!-- The '/homey.js' script must be included in your settings view to work -->
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+</head>
 
-    </head>
-    <body>
+<body>
+  <fieldset>
+    <legend data-i18n="settings.header.settings">Settings</legend>
 
-        <h1 data-i18n="settings.title">
-        	<!--
-        	This field will automatically be filled by a translated string with key 'settings.title'.
-        	Read more about translations at Internationalization.
-        	-->
-        </h1>
-        <p data-i18n="settings.subtitle">
-        	<!--
-        	This field will also be translated
-			-->
-        </p>
+    <div class="field row">
+      <label for="username" data-i18n="settings.field.username">Username</label>
+      <input id="username" type="email" value="" />
+    </div>
+    <div class="field row">
+      <label for="password" data-i18n="settings.field.password">Password</label>
+      <input id="password" type="password" value="" />
+    </div>
+    <div class="field row">
+      <label for="code" data-i18n="settings.field.code">Code</label>
+      <input id="code" type="text" value="" />
+    </div>
+  </fieldset>
 
-        <fieldset>
-            <legend>My Settings</legend>
+  <fieldset>
+    <legend data-i18n="settings.header.information">Information</legend>
 
-            <div class="field row">
-                <label for="username" data-i18n="settings.username">Username</label>
-                <input id="username" type="email" value="" />
-            </div>
-            <div class="field row">
-                <label for="password" data-i18n="settings.password">Password</label>
-                <input id="password" type="password" value="" />
-            </div>
-            <div class="field row">
-                <label for="siteid">SiteId</label>
-                <input id="siteid" type="text" value="" />
-            </div>
-            <div class="field row">
-                <label for="code">Code</label>
-                <input id="code" type="text" value="" />
-            </div>
+    <div class="field row">
+      <div class="field row">
+        <label for="siteid" data-i18n="settings.field.siteid">SiteId</label>
+        <input id="siteid" type="text" value="" readonly />
+      </div>
+  </fieldset>
 
-        </fieldset>
+  <button id="save" class="right" data-i18n="settings.button.save">Save changes</button>
 
-        <button id="save" class="right">Save changes</button>
+  <script type="text/javascript">
+    // a method named 'onHomeyReady' must be present in your code
+    function onHomeyReady(Homey) {
 
-        <script type="text/javascript">
+      // Tell Homey we're ready to be displayed
+      Homey.ready();
 
-        // a method named 'onHomeyReady' must be present in your code
-        function onHomeyReady( Homey ){
+      var usernameElement = document.getElementById('username');
+      var passwordElement = document.getElementById('password');
+      var siteidElement = document.getElementById('siteid');
+      var codeElement = document.getElementById('code');
+      var saveElement = document.getElementById('save');
 
-	        // Tell Homey we're ready to be displayed
-            Homey.ready();
+      Homey.get('username', function (err, username) {
+        if (err) return Homey.alert(err);
+        usernameElement.value = username;
+      });
 
-            var usernameElement = document.getElementById('username');
-            var passwordElement = document.getElementById('password');
-            var siteidElement = document.getElementById('siteid');
-            var codeElement = document.getElementById('code');
-            var saveElement = document.getElementById('save');
+      Homey.get('password', function (err, password) {
+        if (err) return Homey.alert(err);
+        passwordElement.value = password;
+      });
 
-            Homey.get('username', function( err, username ) {
-	           if( err ) return Homey.alert( err );
-			   usernameElement.value = username;
-	        });
+      Homey.get('siteid', function (err, siteid) {
+        if (err) return Homey.alert(err);
+        siteidElement.value = siteid;
+      });
 
-            Homey.get('password', function( err, password ) {
-            if( err ) return Homey.alert( err );
-            passwordElement.value = password;
-            });
+      Homey.get('code', function (err, code) {
+        if (err) return Homey.alert(err);
+        codeElement.value = code;
+      });
 
-            Homey.get('siteid', function( err, siteid ) {
-            if( err ) return Homey.alert( err );
-            siteidElement.value = siteid;
-            });
+      saveElement.addEventListener('click', function (e) {
+        Homey.set('username', usernameElement.value, function (err) {
+          if (err) return Homey.alert(err);
+        });
+        Homey.set('password', passwordElement.value, function (err) {
+          if (err) return Homey.alert(err);
+        });
+        Homey.set('siteid', siteidElement.value, function (err) {
+          if (err) return Homey.alert(err);
+        });
+        Homey.set('code', codeElement.value, function (err) {
+          if (err) return Homey.alert(err);
+        });
+        Homey.alert(Homey.__("settings.alert.settingssaved"));
 
-            Homey.get('code', function( err, code ) {
-            if( err ) return Homey.alert( err );
-            codeElement.value = code;
-            });
-
-	        saveElement.addEventListener('click', function(e) {
-
-	            Homey.set('username', usernameElement.value, function( err ){
-		            if( err ) return Homey.alert( err );
-	            });
-	            Homey.set('password', passwordElement.value, function( err ){
-		            if( err ) return Homey.alert( err );
-	            });
-	            Homey.set('siteid', siteidElement.value, function( err ){
-		            if( err ) return Homey.alert( err );
-	            });
-	            Homey.set('code', codeElement.value, function( err ){
-		            if( err ) return Homey.alert( err );
-                });
-                Homey.alert('Done!');
-
-	        });
-        }
-        </script>
-
-    </body>
+      });
+    }
+  </script>
+</body>
 </html>
