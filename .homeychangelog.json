@@ -6,5 +6,9 @@
   "0.0.2": {
     "en": "Changed the settings page",
     "sv": "Ändrade settings vyn"
+  },
+  "0.0.3": {
+    "en": "Add error handling for invalid session",
+    "sv": "Lägg till felhantering vid felaktig session"
   }
 }

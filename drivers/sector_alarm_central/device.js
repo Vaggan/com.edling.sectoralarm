@@ -113,10 +113,16 @@ class MyDevice extends Homey.Device {
           Promise.resolve().catch(this.log);
         })
         .catch(error => {
-          this.log(`Error: ${error}`);
+          if (error.code === 'ERR_INVALID_SESSION') {
+            this.log('Info: Invalid session, logging back in.');
+            this._site.login()
+              .then(() => this.pollAlarmStatus());
+          } else {
+            this.error(`Error: ${error}`);
+          }
         });
     } catch (e) {
-      this.log(e.message);
+      this.error(e);
     }
   }
 
