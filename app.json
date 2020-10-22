@@ -99,6 +99,18 @@
           "template": "add_devices"
         }
       ]
+    },
+    {
+      "id": "yale_doorman",
+      "name": {
+        "en": "Yale Doorman"
+      },
+      "class": "lock",
+      "capabilities": [],
+      "images": {
+        "large": "/drivers/yale_doorman/assets/images/large.png",
+        "small": "/drivers/yale_doorman/assets/images/small.png"
+      }
     }
   ],
   "flow": {
