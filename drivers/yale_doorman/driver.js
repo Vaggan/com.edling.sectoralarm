@@ -1,33 +1,42 @@
 'use strict';
 
 const Homey = require('homey');
+const sectoralarm = require('sectoralarm');
 
 class MyDriver extends Homey.Driver {
 
-  /**
-   * onInit is called when the driver is initialized.
-   */
   async onInit() {
     this.log('MyDriver has been initialized');
   }
 
-  /**
-   * onPairListDevices is called when a user is adding a device and the 'list_devices' view is
-   * called. This should return an array with the data of devices that are available for pairing.
-   */
   async onPairListDevices() {
-    return [
-      // Example device data, note that `store` is optional
-      // {
-      //   name: 'My Device',
-      //   data: {
-      //     id: 'my-device',
-      //   },
-      //   store: {
-      //     address: '127.0.0.1',
-      //   },
-      // },
-    ];
+    const username = this.homey.settings.get('username');
+    const password = this.homey.settings.get('password');
+    if (username === '' || password === '') {
+      throw new Error('No credentials, please enter credentials in settings.');
+    }
+
+    const devices = [];
+    await sectoralarm.connect(username, password, null, null)
+      .then(async site => {
+        await site.status()
+          .then(async status => {
+            const statusObject = JSON.parse(status);
+            if (this.homey.settings.get('siteid') === '') {
+              this.homey.settings.set('siteid', statusObject.siteId);
+            }
+            statusObject.Locks.forEach(lock => {
+              devices.push(
+                {
+                  name: lock.label,
+                  data: { id: statusObject.serial },
+                },
+              );
+            });
+          });
+      });
+
+    return devices;
   }
 
 }
