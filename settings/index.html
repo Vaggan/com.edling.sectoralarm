@@ -8,7 +8,7 @@
 
 <body>
   <fieldset>
-    <legend data-i18n="settings.header.settings">Settings</legend>
+    <legend data-i18n="settings.header.alaramsettings">Alarm settings</legend>
 
     <div class="field row">
       <label for="username" data-i18n="settings.field.username">Username</label>
@@ -19,8 +19,17 @@
       <input id="password" type="password" value="" />
     </div>
     <div class="field row">
-      <label for="code" data-i18n="settings.field.code">Code</label>
-      <input id="code" type="text" value="" />
+      <label for="alarmcode" data-i18n="settings.field.alarmcode">Code</label>
+      <input id="alarmcode" type="text" value="" />
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="settings.header.locksettings">Lock settings</legend>
+  
+    <div class="field row">
+      <label for="lockcode" data-i18n="settings.field.lockcode">Code</label>
+      <input id="lockcode" type="text" value="" />
     </div>
   </fieldset>
 
@@ -46,7 +55,8 @@
       var usernameElement = document.getElementById('username');
       var passwordElement = document.getElementById('password');
       var siteidElement = document.getElementById('siteid');
-      var codeElement = document.getElementById('code');
+      var alarmCodeElement = document.getElementById('alarmcode');
+      var lockCodeElement = document.getElementById('lockcode');
       var saveElement = document.getElementById('save');
 
       Homey.get('username', function (err, username) {
@@ -64,9 +74,14 @@
         siteidElement.value = siteid;
       });
 
-      Homey.get('code', function (err, code) {
+      Homey.get('alarmcode', function (err, code) {
         if (err) return Homey.alert(err);
-        codeElement.value = code;
+        alarmCodeElement.value = code;
+      });
+
+      Homey.get('lockcode', function (err, code) {
+        if (err) return Homey.alert(err);
+        lockCodeElement.value = code;
       });
 
       saveElement.addEventListener('click', function (e) {
@@ -79,7 +94,10 @@
         Homey.set('siteid', siteidElement.value, function (err) {
           if (err) return Homey.alert(err);
         });
-        Homey.set('code', codeElement.value, function (err) {
+        Homey.set('alarmcode', alarmCodeElement.value, function (err) {
+          if (err) return Homey.alert(err);
+        });
+        Homey.set('lockcode', lockCodeElement.value, function (err) {
           if (err) return Homey.alert(err);
         });
         Homey.alert(Homey.__("settings.alert.settingssaved"));

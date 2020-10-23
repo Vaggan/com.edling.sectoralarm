@@ -1,49 +1,136 @@
 'use strict';
 
 const Homey = require('homey');
+const sectoralarm = require('sectoralarm');
+
+const POLL_INTERVAL = 30000; // 30 seconds
+let LOCK_ID;
+
+const SETTINGS = {
+  USERNAME: 'username',
+  PASSWORD: 'password',
+  SITEID: 'siteid',
+  CODE: 'code',
+  LOCKCODE: 'lockcode',
+};
 
 class MyDevice extends Homey.Device {
 
-  /**
-   * onInit is called when the device is initialized.
-   */
   async onInit() {
-    this.log('MyDevice has been initialized');
+    this.log('Yale Doorman device has been initialized');
+
+    LOCK_ID = this.getData().id;
+    this.log(`LOCK_ID: ${LOCK_ID}`);
+
+    const username = this.homey.settings.get(SETTINGS.USERNAME);
+    const password = this.homey.settings.get(SETTINGS.PASSWORD);
+    const siteid = this.homey.settings.get(SETTINGS.SITEID);
+
+    await sectoralarm.connect(username, password, siteid, null)
+      .then(site => {
+        this._site = site;
+      })
+      .catch(error => {
+        this.error(error);
+      });
+
+    try {
+      this._pollInterval = setInterval(this.pollLockStatus.bind(this), POLL_INTERVAL);
+    } catch (error) {
+      this.error(error);
+    }
+
+    await this.setInitState();
+    this.registerCapabilityListener('locked', this.onCapabilityChanged.bind(this));
+    // this.registerFlowCardCondition();
+    // this.registerFlowCardAction();
   }
 
-  /**
-   * onAdded is called when the user adds the device, called just after pairing.
-   */
   async onAdded() {
-    this.log('MyDevice has been added');
+    this.log('Yale Doorman device has been added');
   }
 
-  /**
-   * onSettings is called when the user updates the device's settings.
-   * @param {object} event the onSettings event data
-   * @param {object} event.oldSettings The old settings object
-   * @param {object} event.newSettings The new settings object
-   * @param {string[]} event.changedKeys An array of keys changed since the previous version
-   * @returns {Promise<string|void>} return a custom message that will be displayed
-   */
-  async onSettings({ oldSettings, newSettings, changedKeys }) {
-    this.log('MyDevice settings where changed');
+  async setInitState() {
+    this._site.locks(LOCK_ID)
+      .then(lock => {
+        this.setCapabilityValue('locked', lock.state === 'locked');
+      })
+      .catch(error => {
+        this.error(error);
+      });
   }
 
-  /**
-   * onRenamed is called when the user updates the device's name.
-   * This method can be used this to synchronise the name to the device.
-   * @param {string} name The new name
-   */
-  async onRenamed(name) {
-    this.log('MyDevice was renamed');
+  pollLockStatus() {
+    try {
+      this.log('pollLockState');
+      this._site.locks(LOCK_ID)
+        .then(async lock => {
+          this.log('Then');
+          this.onLockUpdate(JSON.parse(lock));
+          this.log('After onLockUpdate');
+        })
+        .catch(error => {
+          this.log('Catch');
+          if (error.code === 'ERR_INVALID_SESSION') {
+            this.log('Info: Invalid session, logging back in.');
+            this._site.login()
+              .then(() => this.pollLockStatus());
+          } else {
+            this.error(error);
+          }
+        });
+    } catch (error) {
+      this.log('Error');
+      this.error(error);
+    }
   }
 
-  /**
-   * onDeleted is called when the user deleted the device.
-   */
-  async onDeleted() {
-    this.log('MyDevice has been deleted');
+  onLockUpdate(lock) {
+    try {
+      this.log('onLockUpdate');
+      if (lock.state !== this.getCapabilityValue('locked')) {
+        this.log('in if');
+        this.log(`Lock: ${lock}`);
+        this.log(`Lock 1: ${lock[0]}`);
+        this.log(`Lock state: ${lock.state}`);
+        if (lock && lock.state) {
+          this.log('if lock && state');
+          this.setCapabilityValue('locked', lock.state)
+            .then(() => {
+              this.log('In setCapabilityValueThen');
+              // this.triggerFlow(lock.state);
+            })
+            .catch(new Error('Could not change lock state'));
+        } else if (lock && lock[0] && lock[0].state) {
+          this.log('elseif lock && state');
+          this.setCapabilityValue('locked', lock[0].state)
+            .then(() => {
+              this.log('In setCapabilityValueThen');
+              // this.triggerFlow(lock.state);
+            })
+            .catch(new Error('Could not change lock state'));
+        } else {
+          this.log('else lock && state');
+        }
+      }
+    } catch (error) {
+      this.error(error);
+    }
+  }
+
+  async onCapabilityChanged(value, opts) {
+    const lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
+    return new Promise((resolve, reject) => {
+      if (value) {
+        this._site.lock(LOCK_ID, lockCode)
+          .then(resolve)
+          .catch(reject(new Error('Failed to lock the door.')));
+      } else {
+        this._site.unlock(LOCK_ID, lockCode)
+          .then(resolve)
+          .catch(reject(new Error('Failed to unlock the door.')));
+      }
+    });
   }
 
 }

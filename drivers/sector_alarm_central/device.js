@@ -22,7 +22,7 @@ const settings = {
 class MyDevice extends Homey.Device {
 
   async onInit() {
-    this.log('MyDevice has been inited');
+    this.log('Control panel device has been inited');
 
     const username = this.homey.settings.get(settings.USERNAME);
     const password = this.homey.settings.get(settings.PASSWORD);

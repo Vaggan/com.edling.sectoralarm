@@ -106,7 +106,62 @@
         "en": "Yale Doorman"
       },
       "class": "lock",
-      "capabilities": [],
+      "capabilities": [
+        "locked"
+      ],
+      "capabilitiesOptions": {
+        "locked": {
+          "type": "boolean",
+          "title": {
+            "en": "Locked",
+            "nl": "Op slot",
+            "de": "Verriegelt",
+            "fr": "Verrouillé",
+            "it": "Chiusa",
+            "sv": "Låst",
+            "no": "Låst",
+            "es": "Cerrada",
+            "da": "Låst"
+          },
+          "desc": {
+            "en": "True when the lock is locked",
+            "nl": "Geeft aan wanneer iets op slot is",
+            "de": "True, wenn das Schloss verriegelt ist",
+            "fr": "Vrai, si le verrou est verrouillé",
+            "it": "Vero quando la serratura è chiusa",
+            "sv": "Sant när låset är låst",
+            "no": "Sant når låsen er låst",
+            "es": "Verdadero cuando la cerradura está cerrada",
+            "da": "Sandt, når låsen er låst"
+          },
+          "insights": true,
+          "insightsTitleTrue": {
+            "en": "Locked",
+            "nl": "Vergrendeld",
+            "de": "Verriegelt",
+            "fr": "Verrouillé",
+            "it": "Chiusa",
+            "sv": "Låst",
+            "no": "Låst",
+            "es": "Cerrada",
+            "da": "Låst"
+          },
+          "insightsTitleFalse": {
+            "en": "Unlocked",
+            "nl": "Ontgrendeld",
+            "de": "Entriegelt",
+            "fr": "Déverrouillé",
+            "it": "Aperta",
+            "sv": "Olåst",
+            "no": "Ulåst",
+            "es": "Abierta",
+            "da": "Ulåst"
+          },
+          "getable": true,
+          "setable": true,
+          "uiComponent": "toggle"
+        }
+      },
       "images": {
         "large": "/drivers/yale_doorman/assets/images/large.png",
         "small": "/drivers/yale_doorman/assets/images/small.png"

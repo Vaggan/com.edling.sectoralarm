@@ -6,7 +6,7 @@ const sectoralarm = require('sectoralarm');
 class MyDriver extends Homey.Driver {
 
   async onInit() {
-    this.log('MyDriver has been initialized');
+    this.log('Yale Doorman driver has been initialized');
   }
 
   async onPairListDevices() {
@@ -21,22 +21,31 @@ class MyDriver extends Homey.Driver {
       .then(async site => {
         await site.status()
           .then(async status => {
+            this.log(status);
             const statusObject = JSON.parse(status);
             if (this.homey.settings.get('siteid') === '') {
               this.homey.settings.set('siteid', statusObject.siteId);
             }
-            statusObject.Locks.forEach(lock => {
-              devices.push(
-                {
-                  name: lock.label,
-                  data: { id: statusObject.serial },
-                },
-              );
-            });
+            if (statusObject.locks) {
+              this.log('a');
+              statusObject.locks.forEach(lock => {
+                this.log('b');
+                devices.push(
+                  {
+                    name: lock.label,
+                    data: { id: lock.serial },
+                  },
+                );
+              });
+            }
           });
       });
-
-    return devices;
+    this.log('d');
+    // return devices;
+    return [{
+      name: 'Fake',
+      data: { id: 1 },
+    }];
   }
 
 }

@@ -8,13 +8,15 @@
     },
     "header": {
       "information": "Information",
-      "settings": "Inställningar"
+      "alaramsettings": "Alarminställningar",
+      "locksettings": "Låsinställninag"
     },
     "field": {
       "username": "Användarnamn",
       "password": "Lösenord",
-      "code": "Larmkod",
-      "siteid": "SiteId"
+      "alarmcode": "Larmkod",
+      "siteid": "SiteId",
+      "lockcode": "Låskod"
     }
   }
 }

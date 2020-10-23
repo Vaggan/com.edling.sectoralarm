@@ -8,13 +8,15 @@
     },
     "header": {
       "information": "Information",
-      "settings": "Settings"
+      "alaramsettings": "Alarm settings",
+      "locksettings": "Lock Settings"
     },
     "field": {
       "username": "Username",
       "password": "Password",
-      "code": "Code",
-      "siteid": "SiteId"
+      "alarmcode": "Alarm code",
+      "siteid": "SiteId",
+      "lockcode": "Lock code"
     }
   }
 }
