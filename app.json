@@ -101,7 +101,7 @@
       ]
     },
     {
-      "id": "yale_doorman",
+      "id": "sector_alarm_yale_doorman",
       "name": {
         "en": "Yale Doorman"
       },
@@ -163,8 +163,8 @@
         }
       },
       "images": {
-        "large": "/drivers/yale_doorman/assets/images/large.png",
-        "small": "/drivers/yale_doorman/assets/images/small.png"
+        "large": "/drivers/sector_alarm_yale_doorman/assets/images/large.png",
+        "small": "/drivers/sector_alarm_yale_doorman/assets/images/small.png"
       },
       "pair": [
         {
