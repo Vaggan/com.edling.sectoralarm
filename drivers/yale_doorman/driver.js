@@ -41,11 +41,11 @@ class MyDriver extends Homey.Driver {
           });
       });
     this.log('d');
-    // return devices;
-    return [{
-      name: 'Fake',
-      data: { id: 1 },
-    }];
+    return devices;
+    // return [{
+    //   name: 'Fake',
+    //   data: { id: 1 },
+    // }];
   }
 
 }
