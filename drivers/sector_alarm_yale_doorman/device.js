@@ -90,20 +90,18 @@ class MyDevice extends Homey.Device {
       this.log('onLockUpdate');
       if (lock.state !== this.getCapabilityValue('locked')) {
         this.log('in if');
-        this.log(`Lock: ${lock}`);
-        this.log(`Lock 1: ${lock[0]}`);
-        this.log(`Lock state: ${lock.state}`);
-        if (lock && lock.state) {
+        this.log(`Lock: ${JSON.stringify(lock)}`);
+        if (lock && lock.status) {
           this.log('if lock && state');
-          this.setCapabilityValue('locked', lock.state)
+          this.setCapabilityValue('locked', lock.status)
             .then(() => {
               this.log('In setCapabilityValueThen');
               // this.triggerFlow(lock.state);
             })
             .catch(new Error('Could not change lock state'));
-        } else if (lock && lock[0] && lock[0].state) {
+        } else if (lock && lock[0] && lock[0].status) {
           this.log('elseif lock && state');
-          this.setCapabilityValue('locked', lock[0].state)
+          this.setCapabilityValue('locked', lock[0].status)
             .then(() => {
               this.log('In setCapabilityValueThen');
               // this.triggerFlow(lock.state);
