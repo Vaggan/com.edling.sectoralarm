@@ -119,6 +119,7 @@ class MyDevice extends Homey.Device {
   async onCapabilityChanged(value, opts) {
     const lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
     return new Promise((resolve, reject) => {
+      this.log(`onCapabilityChanged value: ${value}`);
       if (value) {
         this._site.lock(LOCK_ID, lockCode)
           .then(resolve)
