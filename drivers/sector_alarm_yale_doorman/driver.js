@@ -19,33 +19,26 @@ class MyDriver extends Homey.Driver {
     const devices = [];
     await sectoralarm.connect(username, password, null, null)
       .then(async site => {
-        await site.status()
-          .then(async status => {
-            this.log(status);
-            const statusObject = JSON.parse(status);
+        await site.info()
+          .then(async info => {
+            this.log(`Status ${info}`);
+            const infoObject = JSON.parse(info);
             if (this.homey.settings.get('siteid') === '') {
-              this.homey.settings.set('siteid', statusObject.siteId);
+              this.homey.settings.set('siteid', infoObject.siteId);
             }
-            if (statusObject.locks) {
-              this.log('a');
-              statusObject.locks.forEach(lock => {
-                this.log('b');
+            if (infoObject.locks) {
+              infoObject.locks.forEach(lock => {
                 devices.push(
                   {
-                    name: lock.label,
-                    data: { id: lock.serial },
+                    name: lock.name,
+                    data: { id: lock.lockId },
                   },
                 );
               });
             }
           });
       });
-    this.log('d');
     return devices;
-    // return [{
-    //   name: 'Fake',
-    //   data: { id: 1 },
-    // }];
   }
 
 }
