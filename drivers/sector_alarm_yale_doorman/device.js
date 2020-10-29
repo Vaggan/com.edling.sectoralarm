@@ -65,8 +65,8 @@ class MyDevice extends Homey.Device {
       this.log('pollLockState');
       this._site.locks(LOCK_ID)
         .then(async lock => {
-          this.log('Then');
-          this.onLockUpdate(JSON.parse(lock));
+          this.log('Before onLockUpdate');
+          this.onLockUpdate(JSON.parse(lock)[0]);
           this.log('After onLockUpdate');
         })
         .catch(error => {
@@ -88,28 +88,14 @@ class MyDevice extends Homey.Device {
   onLockUpdate(lock) {
     try {
       this.log('onLockUpdate');
-      if (lock.state !== this.getCapabilityValue('locked')) {
-        this.log('in if');
-        this.log(`Lock: ${JSON.stringify(lock)}`);
-        if (lock && lock.status) {
-          this.log('if lock && state');
-          this.setCapabilityValue('locked', lock.status)
-            .then(() => {
-              this.log('In setCapabilityValueThen');
-              // this.triggerFlow(lock.state);
-            })
-            .catch(new Error('Could not change lock state'));
-        } else if (lock && lock[0] && lock[0].status) {
-          this.log('elseif lock && state');
-          this.setCapabilityValue('locked', lock[0].status)
-            .then(() => {
-              this.log('In setCapabilityValueThen');
-              // this.triggerFlow(lock.state);
-            })
-            .catch(new Error('Could not change lock state'));
-        } else {
-          this.log('else lock && state');
-        }
+      this.log(`Lock: ${JSON.stringify(lock)}`);
+      if (lock && lock.status !== this.getCapabilityValue('locked')) {
+        this.setCapabilityValue('locked', lock.status)
+          .then(() => {
+            this.log('Capability value set');
+            // this.triggerFlow(lock.state);
+          })
+          .catch(new Error('Could not change lock state'));
       }
     } catch (error) {
       this.error(error);
