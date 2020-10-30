@@ -90,7 +90,7 @@ class MyDevice extends Homey.Device {
       this.log('onLockUpdate');
       this.log(`Lock: ${JSON.stringify(lock)}`);
       if (lock && lock.status !== this.getCapabilityValue('locked')) {
-        this.setCapabilityValue('locked', lock.status)
+        this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
             this.log('Capability value set');
             // this.triggerFlow(lock.state);
