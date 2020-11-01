@@ -65,12 +65,9 @@ class MyDevice extends Homey.Device {
       this.log('pollLockState');
       this._site.locks(LOCK_ID)
         .then(async lock => {
-          this.log('Before onLockUpdate');
           this.onLockUpdate(JSON.parse(lock)[0]);
-          this.log('After onLockUpdate');
         })
         .catch(error => {
-          this.log('Catch');
           if (error.code === 'ERR_INVALID_SESSION') {
             this.log('Info: Invalid session, logging back in.');
             this._site.login()
@@ -80,22 +77,20 @@ class MyDevice extends Homey.Device {
           }
         });
     } catch (error) {
-      this.log('Error');
       this.error(error);
     }
   }
 
   onLockUpdate(lock) {
     try {
-      this.log('onLockUpdate');
-      this.log(`Lock: ${JSON.stringify(lock)}`);
+      this.log(`onLockUpdate, current state: ${JSON.stringify(lock)}`);
       if (lock && lock.status !== this.getCapabilityValue('locked')) {
         this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
-            this.log('Capability value set');
+            this.log(`Capability value 'locked' changed to: ${lock.status}`);
             // this.triggerFlow(lock.state);
           })
-          .catch(new Error('Could not change lock state'));
+          .catch(new Error(`Could not change lock state to ${lock.status}`));
       }
     } catch (error) {
       this.error(error);
@@ -103,19 +98,30 @@ class MyDevice extends Homey.Device {
   }
 
   async onCapabilityChanged(value, opts) {
+    this.log(`onCapabilityChanged, set locked to: ${value}`);
     const lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
-    return new Promise((resolve, reject) => {
-      this.log(`onCapabilityChanged value: ${value}`);
-      if (value) {
-        this._site.lock(LOCK_ID, lockCode)
-          .then(resolve)
-          .catch(reject(new Error('Failed to lock the door.')));
-      } else {
-        this._site.unlock(LOCK_ID, lockCode)
-          .then(resolve)
-          .catch(reject(new Error('Failed to unlock the door.')));
-      }
-    });
+
+    if (value) {
+      await this._site.lock(LOCK_ID, lockCode)
+        .then(messag => {
+          this.log(messag);
+          return Promise.resolve();
+        })
+        .catch(error => {
+          this.error(error);
+          return Promise.reject(new Error('Failed to lock the door.'));
+        });
+    } else {
+      await this._site.unlock(LOCK_ID, lockCode)
+        .then(messag => {
+          this.log(messag);
+          return Promise.resolve();
+        })
+        .catch(error => {
+          this.error(error);
+          return Promise.reject(new Error('Failed to unlock the door.'));
+        });
+    }
   }
 
 }
