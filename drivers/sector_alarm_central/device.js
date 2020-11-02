@@ -3,7 +3,6 @@
 const Homey = require('homey');
 const sectoralarm = require('sectoralarm');
 
-const POLL_INTERVAL = 30000; // 30 seconds
 const ALARMSTATE = {
   ARMED: 'armed',
   DISARMED: 'disarmed',
@@ -12,21 +11,33 @@ const ALARMSTATE = {
     HOMEY: 'partially_armed',
   },
 };
-const settings = {
+const SETTINGS = {
   USERNAME: 'username',
   PASSWORD: 'password',
   SITEID: 'siteid',
   CODE: 'code',
+  POLLINTERVAL: 'pollinterval',
 };
+
+let pollInterval = '';
+let username = '';
+let password = '';
+let siteid = '';
+let code = '';
+
+let retryLogin = true;
 
 class MyDevice extends Homey.Device {
 
   async onInit() {
     this.log('Control panel device has been inited');
 
-    const username = this.homey.settings.get(settings.USERNAME);
-    const password = this.homey.settings.get(settings.PASSWORD);
-    const siteid = this.homey.settings.get(settings.SITEID);
+    // ((a < b) ? 'minor' : 'major')
+    pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
+    username = this.homey.settings.get(SETTINGS.USERNAME);
+    password = this.homey.settings.get(SETTINGS.PASSWORD);
+    siteid = this.homey.settings.get(SETTINGS.SITEID);
+    code = this.homey.settings.get(SETTINGS.CODE);
 
     await sectoralarm.connect(username, password, siteid, null)
       .then(site => {
@@ -36,7 +47,7 @@ class MyDevice extends Homey.Device {
         this.error(error);
       });
     try {
-      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), POLL_INTERVAL);
+      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
     } catch (error) {
       this.error(error);
     }
@@ -85,7 +96,6 @@ class MyDevice extends Homey.Device {
   }
 
   async registerFlowCardAction() {
-    const code = this.homey.settings.get(settings.CODE);
     const alarmStateAction = this.homey.flow.getActionCard('set_homealarm_state');
     alarmStateAction
       .registerRunListener(async (args, state) => {
@@ -107,22 +117,45 @@ class MyDevice extends Homey.Device {
 
   pollAlarmStatus() {
     try {
+      this.log(`pollinterval: ${pollInterval}`);
+      this.CheckSettings();
       this._site.status()
         .then(async status => {
+          retryLogin = true;
           this.onAlarmUpdate(status);
           Promise.resolve().catch(this.error);
         })
-        .catch(error => {
+        .catch(async error => {
           if (error.code === 'ERR_INVALID_SESSION') {
             this.log('Info: Invalid session, logging back in.');
-            this._site.login()
-              .then(() => this.pollAlarmStatus());
+            if (retryLogin) {
+              retryLogin = false;
+              await this._site.login()
+                .then(() => {
+                  retryLogin = true;
+                  this.pollAlarmStatus();
+                });
+            }
           } else {
             this.error(error);
           }
         });
     } catch (error) {
       this.error(error);
+    }
+  }
+
+  CheckSettings() {
+    const tempPollInterval = pollInterval;
+    pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
+    username = this.homey.settings.get(SETTINGS.USERNAME);
+    password = this.homey.settings.get(SETTINGS.PASSWORD);
+    siteid = this.homey.settings.get(SETTINGS.SITEID);
+    code = this.homey.settings.get(SETTINGS.CODE);
+
+    if (!(tempPollInterval === pollInterval)) {
+      clearTimeout(this._pollAlarmInterval);
+      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
     }
   }
 
@@ -153,7 +186,7 @@ class MyDevice extends Homey.Device {
       const stateChangedTrigger = this.homey.flow.getTriggerCard('homealarm_state_changed');
       stateChangedTrigger
         .trigger(null, state)
-        .then(this.log(`Flow homealarm_state_changed triggered whith state: ${triggeredState}`))
+        .then(this.log(`Flow homealarm_state_changed triggered whith state: ${triggeredState} `))
         .catch(error => {
           this.error(error);
         });
@@ -216,7 +249,6 @@ class MyDevice extends Homey.Device {
 
   async setAlarmState(state, action) {
     return new Promise((resolve, reject) => {
-      const code = this.homey.settings.get(settings.CODE);
       if (code === '') {
         reject(new Error('No alarm code set'));
       }
@@ -225,16 +257,16 @@ class MyDevice extends Homey.Device {
 
       action(code)
         .then(() => {
-          resolve(`Successfully set the alarm to: ${state}`);
+          resolve(`Successfully set the alarm to: ${state} `);
         })
         .catch(error => {
           sleep(5000).then(() => {
             action(code)
               .then(() => {
-                resolve(`Successfully set the alarm to: ${state}`);
+                resolve(`Successfully set the alarm to: ${state} `);
               })
               .catch(() => {
-                reject(new Error(`Faild to set the alarm to: ${state}`));
+                reject(new Error(`Faild to set the alarm to: ${state} `));
               });
           });
         });

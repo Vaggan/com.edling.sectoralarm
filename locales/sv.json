@@ -9,14 +9,16 @@
     "header": {
       "information": "Information",
       "alaramsettings": "Alarminställningar",
-      "locksettings": "Låsinställninag"
+      "locksettings": "Låsinställninag",
+      "other": "Annat"
     },
     "field": {
       "username": "Användarnamn",
       "password": "Lösenord",
       "alarmcode": "Larmkod",
       "siteid": "SiteId",
-      "lockcode": "Låskod"
+      "lockcode": "Låskod",
+      "pollinterval": "Uppdateringsfrekvens (Sekunder)"
     }
   }
 }

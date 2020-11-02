@@ -3,7 +3,6 @@
 const Homey = require('homey');
 const sectoralarm = require('sectoralarm');
 
-const POLL_INTERVAL = 30000; // 30 seconds
 let LOCK_ID;
 
 const SETTINGS = {
@@ -12,7 +11,16 @@ const SETTINGS = {
   SITEID: 'siteid',
   CODE: 'code',
   LOCKCODE: 'lockcode',
+  POLLINTERVAL: 'pollinterval',
 };
+
+let pollInterval = '';
+let username = '';
+let password = '';
+let siteid = '';
+let lockCode = '';
+
+let retryLogin = true;
 
 class MyDevice extends Homey.Device {
 
@@ -22,9 +30,12 @@ class MyDevice extends Homey.Device {
     LOCK_ID = this.getData().id;
     this.log(`LOCK_ID: ${LOCK_ID}`);
 
-    const username = this.homey.settings.get(SETTINGS.USERNAME);
-    const password = this.homey.settings.get(SETTINGS.PASSWORD);
-    const siteid = this.homey.settings.get(SETTINGS.SITEID);
+    // ((a < b) ? 'minor' : 'major')
+    pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
+    username = this.homey.settings.get(SETTINGS.USERNAME);
+    password = this.homey.settings.get(SETTINGS.PASSWORD);
+    siteid = this.homey.settings.get(SETTINGS.SITEID);
+    lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
 
     await sectoralarm.connect(username, password, siteid, null)
       .then(site => {
@@ -35,7 +46,7 @@ class MyDevice extends Homey.Device {
       });
 
     try {
-      this._pollInterval = setInterval(this.pollLockStatus.bind(this), POLL_INTERVAL);
+      this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
     } catch (error) {
       this.error(error);
     }
@@ -62,22 +73,43 @@ class MyDevice extends Homey.Device {
 
   pollLockStatus() {
     try {
-      this.log('pollLockState');
+      this.log(`pollinterval: ${pollInterval}`);
+      this.CheckSettings();
       this._site.locks(LOCK_ID)
         .then(async lock => {
           this.onLockUpdate(JSON.parse(lock)[0]);
         })
-        .catch(error => {
+        .catch(async error => {
           if (error.code === 'ERR_INVALID_SESSION') {
             this.log('Info: Invalid session, logging back in.');
-            this._site.login()
-              .then(() => this.pollLockStatus());
-          } else {
-            this.error(error);
+            if (retryLogin) {
+              retryLogin = false;
+              await this._site.login()
+                .then(() => {
+                  retryLogin = true;
+                  this.pollLockStatus();
+                });
+            } else {
+              this.error(error);
+            }
           }
         });
     } catch (error) {
       this.error(error);
+    }
+  }
+
+  CheckSettings() {
+    const tempPollInterval = pollInterval;
+    pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
+    username = this.homey.settings.get(SETTINGS.USERNAME);
+    password = this.homey.settings.get(SETTINGS.PASSWORD);
+    siteid = this.homey.settings.get(SETTINGS.SITEID);
+    lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
+
+    if (!(tempPollInterval === pollInterval)) {
+      clearTimeout(this._pollInterval);
+      this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
     }
   }
 
@@ -99,7 +131,6 @@ class MyDevice extends Homey.Device {
 
   async onCapabilityChanged(value, opts) {
     this.log(`onCapabilityChanged, set locked to: ${value}`);
-    const lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
 
     if (value) {
       await this._site.lock(LOCK_ID, lockCode)
