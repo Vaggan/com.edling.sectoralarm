@@ -9,14 +9,16 @@
     "header": {
       "information": "Information",
       "alaramsettings": "Alarm settings",
-      "locksettings": "Lock Settings"
+      "locksettings": "Lock Settings",
+      "other": "Other"
     },
     "field": {
       "username": "Username",
       "password": "Password",
       "alarmcode": "Alarm code",
       "siteid": "SiteId",
-      "lockcode": "Lock code"
+      "lockcode": "Lock code",
+      "pollinterval": "Poll interval (seconds)"
     }
   }
 }

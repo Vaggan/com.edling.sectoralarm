@@ -20,7 +20,7 @@
     </div>
     <div class="field row">
       <label for="alarmcode" data-i18n="settings.field.alarmcode">Code</label>
-      <input id="alarmcode" type="text" value="" />
+      <input id="alarmcode" type="number" value="" />
     </div>
   </fieldset>
 
@@ -29,7 +29,16 @@
   
     <div class="field row">
       <label for="lockcode" data-i18n="settings.field.lockcode">Code</label>
-      <input id="lockcode" type="text" value="" />
+      <input id="lockcode" type="number" value="" />
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend data-i18n="settings.header.other">Other</legend>
+
+    <div class="field row">
+      <label for="pollinterval" data-i18n="settings.field.pollinterval">Poll interval</label>
+      <input id="pollinterval" type="number" value="" />
     </div>
   </fieldset>
 
@@ -57,6 +66,7 @@
       var siteidElement = document.getElementById('siteid');
       var alarmCodeElement = document.getElementById('alarmcode');
       var lockCodeElement = document.getElementById('lockcode');
+      var pollintervalElement = document.getElementById('pollinterval');
       var saveElement = document.getElementById('save');
 
       Homey.get('username', function (err, username) {
@@ -84,6 +94,11 @@
         lockCodeElement.value = code;
       });
 
+      Homey.get('pollinterval', function (err, pollinterval) {
+        if (err) return Homey.alert(err);
+        pollintervalElement.value = pollinterval;
+      });
+
       saveElement.addEventListener('click', function (e) {
         Homey.set('username', usernameElement.value, function (err) {
           if (err) return Homey.alert(err);
@@ -98,6 +113,9 @@
           if (err) return Homey.alert(err);
         });
         Homey.set('lockcode', lockCodeElement.value, function (err) {
+          if (err) return Homey.alert(err);
+        });
+        Homey.set('pollinterval', pollintervalElement.value, function (err) {
           if (err) return Homey.alert(err);
         });
         Homey.alert(Homey.__("settings.alert.settingssaved"));
