@@ -10,6 +10,7 @@
     "eslint-config-athom": "^2.1.0"
   },
   "dependencies": {
+    "homey-log": "^2.0.1",
     "sectoralarm": "^2.0.6"
   }
 }
