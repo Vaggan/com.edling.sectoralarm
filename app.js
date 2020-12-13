@@ -14,8 +14,8 @@ if (process.env.DEBUG === '1') {
 class MyApp extends Homey.App {
 
   onInit() {
-    this.updateLog('MyApp is running...');
     this.homeyLog = new Log({ homey: this.homey });
+    this.updateLog('MyApp is running...');
     this.homey.settings.set('diagLog', '');
     this.homey.settings.set('sendLog', '');
 
@@ -57,6 +57,10 @@ class MyApp extends Homey.App {
       oldText += 'App version ';
       oldText += Homey.manifest.version;
       oldText += '\r\n\r\n';
+      this.logLastTime = nowTime;
+    }
+
+    if (this.logLastTime === undefined) {
       this.logLastTime = nowTime;
     }
 
