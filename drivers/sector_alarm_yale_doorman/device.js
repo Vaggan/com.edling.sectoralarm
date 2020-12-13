@@ -25,12 +25,11 @@ let retryLogin = true;
 class MyDevice extends Homey.Device {
 
   async onInit() {
-    this.log('Yale Doorman device has been initialized');
+    this.homey.app.updateLog('Yale Doorman device has been initialized');
 
     LOCK_ID = this.getData().id;
-    this.log(`LOCK_ID: ${LOCK_ID}`);
+    this.homey.app.updateLog(`LOCK_ID: ${LOCK_ID}`);
 
-    // ((a < b) ? 'minor' : 'major')
     pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
     username = this.homey.settings.get(SETTINGS.USERNAME);
     password = this.homey.settings.get(SETTINGS.PASSWORD);
@@ -42,13 +41,13 @@ class MyDevice extends Homey.Device {
         this._site = site;
       })
       .catch(error => {
-        this.error(error);
+        this.homey.app.updateLog(error, 0);
       });
 
     try {
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
     } catch (error) {
-      this.error(error);
+      this.homey.app.updateLog(error, 0);
     }
 
     await this.setInitState();
@@ -58,22 +57,23 @@ class MyDevice extends Homey.Device {
   }
 
   async onAdded() {
-    this.log('Yale Doorman device has been added');
+    this.homey.app.updateLog('Yale Doorman device has been added');
   }
 
   async setInitState() {
     this._site.locks(LOCK_ID)
       .then(lock => {
+        this.homey.app.updateLog(`Set initial lock state to: ${lock.state}`);
         this.setCapabilityValue('locked', lock.state === 'locked');
       })
       .catch(error => {
-        this.error(error);
+        this.homey.app.updateLog(error, 0);
       });
   }
 
   pollLockStatus() {
     try {
-      this.log(`pollinterval: ${pollInterval}`);
+      this.homey.app.updateLog(`pollinterval: ${pollInterval}`, 2);
       this.CheckSettings();
       this._site.locks(LOCK_ID)
         .then(async lock => {
@@ -81,7 +81,7 @@ class MyDevice extends Homey.Device {
         })
         .catch(async error => {
           if (error.code === 'ERR_INVALID_SESSION') {
-            this.log('Info: Invalid session, logging back in.');
+            this.homey.app.updateLog('Info: Invalid session, logging back in.');
             if (retryLogin) {
               retryLogin = false;
               await this._site.login()
@@ -90,12 +90,12 @@ class MyDevice extends Homey.Device {
                   this.pollLockStatus();
                 });
             } else {
-              this.error(error);
+              this.homey.app.updateLog(error, 0);
             }
           }
         });
     } catch (error) {
-      this.error(error);
+      this.homey.app.updateLog(error, 0);
     }
   }
 
@@ -109,47 +109,48 @@ class MyDevice extends Homey.Device {
 
     if (!(tempPollInterval === pollInterval)) {
       clearTimeout(this._pollInterval);
+      this.homey.app.updateLog(`Change poll insterval to: ${Number(pollInterval) / 1000} seconds`);
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
     }
   }
 
   onLockUpdate(lock) {
     try {
-      this.log(`onLockUpdate, current state: ${JSON.stringify(lock)}`);
+      this.homey.app.updateLog(`onLockUpdate, current state: ${JSON.stringify(lock)}`);
       if (lock && lock.status !== this.getCapabilityValue('locked')) {
         this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
-            this.log(`Capability value 'locked' changed to: ${lock.status}`);
+            this.homey.app.updateLog(`Capability value 'locked' changed to: ${lock.status}`);
             // this.triggerFlow(lock.state);
           })
           .catch(new Error(`Could not change lock state to ${lock.status}`));
       }
     } catch (error) {
-      this.error(error);
+      this.homey.app.updateLog(error, 0);
     }
   }
 
   async onCapabilityChanged(value, opts) {
-    this.log(`onCapabilityChanged, set locked to: ${value}`);
+    this.homey.app.updateLog(`onCapabilityChanged, set locked to: ${value}`);
 
     if (value) {
       await this._site.lock(LOCK_ID, lockCode)
         .then(messag => {
-          this.log(messag);
+          this.homey.app.updateLog(messag);
           return Promise.resolve();
         })
         .catch(error => {
-          this.error(error);
+          this.homey.app.updateLog(error, 0);
           return Promise.reject(new Error('Failed to lock the door.'));
         });
     } else {
       await this._site.unlock(LOCK_ID, lockCode)
         .then(messag => {
-          this.log(messag);
+          this.homey.app.updateLog(messag);
           return Promise.resolve();
         })
         .catch(error => {
-          this.error(error);
+          this.homey.app.updateLog(error, 0);
           return Promise.reject(new Error('Failed to unlock the door.'));
         });
     }

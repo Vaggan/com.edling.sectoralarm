@@ -6,7 +6,7 @@ const sectoralarm = require('sectoralarm');
 class MyDriver extends Homey.Driver {
 
   async onInit() {
-    this.log('Yale Doorman driver has been initialized');
+    this.homey.app.updateLog('Yale Doorman driver has been initialized');
   }
 
   async onPairListDevices() {

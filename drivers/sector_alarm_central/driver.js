@@ -6,7 +6,7 @@ const sectoralarm = require('sectoralarm');
 class MyDriver extends Homey.Driver {
 
   onInit() {
-    this.log('Control panel driver has been initialized');
+    this.homey.app.updateLog('Control panel driver has been initialized');
   }
 
   async onPairListDevices() {
