@@ -29,7 +29,11 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
-##### Version: 0.0.
+##### Version: 0.0.4
+- Change logging
+- Language changes
+
+##### Version: 0.0.3
 - Add error handling for invalid session
 
 ##### Version: 0.0.2

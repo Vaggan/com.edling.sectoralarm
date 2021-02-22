@@ -10,5 +10,9 @@
   "0.0.3": {
     "en": "Add error handling for invalid session",
     "sv": "Lägg till felhantering vid felaktig session"
+  },
+  "0.0.4": {
+    "en": "Change logging and some language fixes",
+    "sv": "Ändring av loggning och språk"
   }
 }
