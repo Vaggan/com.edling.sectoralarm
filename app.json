@@ -1,6 +1,6 @@
 {
   "id": "com.edling.sectoralarm",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF1C1C",
@@ -73,7 +73,7 @@
               "id": "partially_armed",
               "title": {
                 "en": "Partially armed",
-                "sv": "Delvis larmat"
+                "sv": "Skalskydd"
               }
             }
           ],
@@ -212,7 +212,7 @@
                 "id": "partially_armed",
                 "title": {
                   "en": "Partially armed",
-                  "sv": "Delvis larmat"
+                  "sv": "Skalskydd"
                 }
               }
             ]
@@ -250,7 +250,7 @@
                 "id": "partially_armed",
                 "title": {
                   "en": "Partially armed",
-                  "sv": "Delvis larmat"
+                  "sv": "Skalskydd"
                 }
               }
             ]
@@ -293,7 +293,7 @@
                 "id": "partially_armed",
                 "title": {
                   "en": "Partially armed",
-                  "sv": "Delvis larmat"
+                  "sv": "Skalskydd"
                 }
               }
             ]
