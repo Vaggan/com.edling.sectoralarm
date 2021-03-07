@@ -14,5 +14,9 @@
   "0.0.4": {
     "en": "Change logging and some language fixes",
     "sv": "Ändring av loggning och språk"
+  },
+  "0.1.0": {
+    "en": "Add support for Yale Doorman and logging",
+    "sv": "Lägg till stöd för Yale Doorman och loggning"
   }
 }
