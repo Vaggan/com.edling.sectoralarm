@@ -29,6 +29,10 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
+##### Version: 0.1.0
+- Add support for Yale Doorman
+- Add logging
+
 ##### Version: 0.0.4
 - Change logging
 - Language changes
