@@ -189,6 +189,10 @@
           "en": "The state changed",
           "sv": "Statusen ändrad"
         },
+        "titleFormatted": {
+          "en": "The state changed to [[state]]",
+          "sv": "Statusen ändrades till [[state]]"
+        },
         "args": [
           {
             "name": "state",
@@ -227,6 +231,10 @@
           "en": "The state is !{{|not}}",
           "sv": "Statusen är !{{|inte}}"
         },
+        "titleFormatted": {
+          "en": "The state is [[state]]",
+          "sv": "Statusen är [[state]]"
+        },
         "args": [
           {
             "name": "state",
@@ -264,6 +272,10 @@
         "title": {
           "en": "Set state",
           "sv": "Ställ in status"
+        },
+        "titleFormatted": {
+          "en": "Set [[device]] state [[state]]",
+          "sv": "Sätt statusen för [[device]] till [[state]]"
         },
         "args": [
           {
