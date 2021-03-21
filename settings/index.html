@@ -117,53 +117,53 @@
 
       // -- Settings page -- //
       Homey.get('username', function (err, username) {
-        if (err) return Homey.alert(err);
+        if (err) username = ""; //Homey.alert(err);
         usernameElement.value = username;
       });
 
       Homey.get('password', function (err, password) {
-        if (err) return Homey.alert(err);
+        if (err) password = ""; //Homey.alert(err);
         passwordElement.value = password;
       });
 
       Homey.get('siteid', function (err, siteid) {
-        if (err) return Homey.alert(err);
+        if (err) siteid = ""; //Homey.alert(err);
         siteidElement.value = siteid;
       });
 
       Homey.get('alarmcode', function (err, code) {
-        if (err) return Homey.alert(err);
+        if (err) code = ""; //Homey.alert(err);
         alarmCodeElement.value = code;
       });
 
       Homey.get('lockcode', function (err, code) {
-        if (err) return Homey.alert(err);
+        if (err) code = ""; //Homey.alert(err);
         lockCodeElement.value = code;
       });
 
       Homey.get('pollinterval', function (err, pollinterval) {
-        if (err) return Homey.alert(err);
+        if (err) pollinterval = 30; //Homey.alert(err);
         pollintervalElement.value = pollinterval;
       });
 
       saveElement.addEventListener('click', function (e) {
         Homey.set('username', usernameElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('password', passwordElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('siteid', siteidElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('alarmcode', alarmCodeElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('lockcode', lockCodeElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('pollinterval', pollintervalElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.alert(Homey.__("settings.alert.settingssaved"));
 
@@ -172,7 +172,7 @@
       // -- Log page -- //
       Homey.on('settings.set', function () {
         Homey.get('logLevel', function (err, logLevel) {
-          if (err) return Homey.alert(err);
+          if (err) logLevel = 1; //Homey.alert(err);
           if (!logLevel || logLevel === ''){
             logLevel = 1;
           }
@@ -180,20 +180,20 @@
         });
 
         Homey.get('diagLog', function (err, diagLog) {
-          if (err) return Homey.alert(err);
+          if (err) diagLog = ""; //Homey.alert(err);
           diagLogElement.value = diagLog;
         });
       });
 
       logLevelElement.addEventListener('change', function (e) {
         Homey.set('logLevel', logLevelElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
       });
 
       clearLogElement.addEventListener('click', function (e) {
         Homey.set('diagLog', "", function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         diagLogElement.value = "";
       });
@@ -202,7 +202,7 @@
         Homey.confirm("Send the log contents to the developer?", null, function (e, ok) {
           if (ok) {
             Homey.set('sendLog', "send", function (err) {
-              if (err) return Homey.alert(err);
+              //if (err) return Homey.alert(err);
             });
           }
         });
@@ -236,12 +236,12 @@
       if (tabPage == 'logPage') {
         // Refresh the log data
         Homey.get('logLevel', function (err, logLevel) {
-          if (err) return Homey.alert(err);
+          if (err) logLevel = 1; //Homey.alert(err);
           logLevelElement.value = logLevel;
         });
 
         Homey.get('diagLog', function (err, diagLog) {
-          if (err) return Homey.alert(err);
+          if (err) diagLog = ""; //Homey.alert(err);
           diagLogElement.value = diagLog;
         });
 
