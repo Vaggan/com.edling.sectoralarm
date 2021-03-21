@@ -121,7 +121,7 @@ class MyDevice extends Homey.Device {
   CheckPollInterval() {
     if (pollInterval < DEFAULTPOLLTIME) {
       pollInterval = DEFAULTPOLLTIME;
-      this.homey.settings.set(SETTINGS.POLLINTERVAL, DEFAULTPOLLTIME);
+      this.homey.settings.set(SETTINGS.POLLINTERVAL, DEFAULTPOLLTIME / 1000);
       this.homey.app.updateLog(`Poll interval to low, setting it to: ${DEFAULTPOLLTIME}`);
     }
   }
