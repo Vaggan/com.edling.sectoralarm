@@ -51,7 +51,7 @@
 
       <div class="field row">
         <label for="pollinterval" data-i18n="settings.field.pollinterval">Poll interval</label>
-        <input id="pollinterval" type="number" value="" />
+        <input id="pollinterval" type="number" value="" min="30"/>
       </div>
     </fieldset>
 
@@ -173,6 +173,9 @@
       Homey.on('settings.set', function () {
         Homey.get('logLevel', function (err, logLevel) {
           if (err) return Homey.alert(err);
+          if (!logLevel || logLevel === ''){
+            logLevel = 1;
+          }
           logLevelElement.value = logLevel;
         });
 

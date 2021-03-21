@@ -18,5 +18,9 @@
   "0.1.0": {
     "en": "Add support for Yale Doorman and logging",
     "sv": "Lägg till stöd för Yale Doorman och loggning"
+  },
+  "0.1.1": {
+    "en": "Bug fixes",
+    "sv": "Bugfixar"
   }
 }

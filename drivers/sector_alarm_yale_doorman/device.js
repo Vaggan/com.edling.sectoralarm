@@ -13,6 +13,7 @@ const SETTINGS = {
   LOCKCODE: 'lockcode',
   POLLINTERVAL: 'pollinterval',
 };
+const DEFAULTPOLLTIME = 30000;
 
 let pollInterval = '';
 let username = '';
@@ -35,6 +36,8 @@ class MyDevice extends Homey.Device {
     password = this.homey.settings.get(SETTINGS.PASSWORD);
     siteid = this.homey.settings.get(SETTINGS.SITEID);
     lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
+
+    this.CheckPollInterval();
 
     await sectoralarm.connect(username, password, siteid, null)
       .then(site => {
@@ -108,9 +111,18 @@ class MyDevice extends Homey.Device {
     lockCode = this.homey.settings.get(SETTINGS.LOCKCODE);
 
     if (!(tempPollInterval === pollInterval)) {
-      clearTimeout(this._pollInterval);
       this.homey.app.updateLog(`Change poll insterval to: ${Number(pollInterval) / 1000} seconds`);
+      this.CheckPollInterval();
+      clearTimeout(this._pollInterval);
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
+    }
+  }
+
+  CheckPollInterval() {
+    if (pollInterval < DEFAULTPOLLTIME) {
+      pollInterval = DEFAULTPOLLTIME;
+      this.homey.settings.set(SETTINGS.POLLINTERVAL, DEFAULTPOLLTIME);
+      this.homey.app.updateLog(`Poll interval to low, setting it to: ${DEFAULTPOLLTIME}`);
     }
   }
 

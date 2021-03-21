@@ -31,16 +31,20 @@ class MyApp extends Homey.App {
   }
 
   updateLog(newMessage, ignoreSetting = 1) {
-    if (ignoreSetting > this.homey.settings.get('logLevel')) {
+    let logLevel = this.homey.settings.get('logLevel');
+    if (!logLevel || logLevel === '') {
+      logLevel = 1;
+    }
+    if (ignoreSetting > logLevel) {
       return;
     }
 
     this.log(newMessage);
 
     let oldText = this.homey.settings.get('diagLog');
-    if (oldText.length > 30000) {
+    if (oldText.length > 10000) {
       // Remove the first 5000 characters.
-      oldText = oldText.substring(1000);
+      oldText = oldText.substring(5000);
       const n = oldText.indexOf('\n');
       if (n >= 0) {
         // Remove up to and including the first \n so the log starts on a whole line
@@ -64,18 +68,18 @@ class MyApp extends Homey.App {
       this.logLastTime = nowTime;
     }
 
-    const dt = new Date(nowTime.getTime() - this.logLastTime.getTime());
+    // const dt = new Date(nowTime.getTime() - this.logLastTime.getTime());
     this.logLastTime = nowTime;
 
     oldText += '+';
-    oldText += dt.getHours();
+    oldText += nowTime.getHours();
     oldText += ':';
-    oldText += dt.getMinutes();
+    oldText += nowTime.getMinutes();
     oldText += ':';
-    oldText += dt.getSeconds();
+    oldText += nowTime.getSeconds();
     oldText += '.';
 
-    const milliSeconds = dt.getMilliseconds().toString();
+    const milliSeconds = nowTime.getMilliseconds().toString();
     if (milliSeconds.length === 2) {
       oldText += '0';
     } else if (milliSeconds.length === 1) {
