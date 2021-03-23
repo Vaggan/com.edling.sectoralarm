@@ -158,6 +158,9 @@ class MyDevice extends Homey.Device {
                 .then(() => {
                   retryLogin = true;
                   this.pollAlarmStatus();
+                })
+                .catch(innerError => {
+                  this.homey.app.updateLog(innerError, 0);
                 });
             }
           } else {
@@ -213,10 +216,14 @@ class MyDevice extends Homey.Device {
       }
       if (armedState !== this.getCapabilityValue('homealarm_state')) {
         this.homey.app.updateLog(`Set new alarm state to ${armedState}`);
-        this.setCapabilityValue('homealarm_state', armedState).then(() => {
-          this.homey.app.updateLog(`Trigger flow with state: ${armedState}`);
-          this.triggerFlow(armedState);
-        });
+        this.setCapabilityValue('homealarm_state', armedState)
+          .then(() => {
+            this.homey.app.updateLog(`Trigger flow with state: ${armedState}`);
+            this.triggerFlow(armedState);
+          })
+          .catch(error => {
+            this.homey.app.updateLog(error, 0);
+          });
       }
     } catch (error) {
       this.homey.app.updateLog(error, 0);

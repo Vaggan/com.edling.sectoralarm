@@ -91,6 +91,9 @@ class MyDevice extends Homey.Device {
                 .then(() => {
                   retryLogin = true;
                   this.pollLockStatus();
+                })
+                .catch(innerError => {
+                  this.homey.app.updateLog(innerError, 0);
                 });
             } else {
               this.homey.app.updateLog(error, 0);
@@ -135,7 +138,10 @@ class MyDevice extends Homey.Device {
             this.homey.app.updateLog(`Capability value 'locked' changed to: ${lock.status}`);
             // this.triggerFlow(lock.state);
           })
-          .catch(new Error(`Could not change lock state to ${lock.status}`));
+          .catch(error => {
+            this.homey.app.updateLog(`Could not change lock state to ${lock.status}`);
+            this.homey.app.updateLog(error, 0);
+          });
       }
     } catch (error) {
       this.homey.app.updateLog(error, 0);

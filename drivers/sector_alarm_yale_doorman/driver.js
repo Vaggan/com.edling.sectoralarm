@@ -13,6 +13,7 @@ class MyDriver extends Homey.Driver {
     const username = this.homey.settings.get('username');
     const password = this.homey.settings.get('password');
     if (username === '' || password === '') {
+      this.homey.app.updateLog('No credentials, please enter credentials in settings.');
       throw new Error('No credentials, please enter credentials in settings.');
     }
 
@@ -36,7 +37,13 @@ class MyDriver extends Homey.Driver {
                 );
               });
             }
+          })
+          .catch(innerError => {
+            this.homey.app.updateLog(innerError, 0);
           });
+      })
+      .catch(innerError => {
+        this.homey.app.updateLog(innerError, 0);
       });
     return devices;
   }
