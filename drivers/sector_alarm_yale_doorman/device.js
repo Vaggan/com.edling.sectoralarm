@@ -9,7 +9,6 @@ const SETTINGS = {
   USERNAME: 'username',
   PASSWORD: 'password',
   SITEID: 'siteid',
-  CODE: 'code',
   LOCKCODE: 'lockcode',
   POLLINTERVAL: 'pollinterval',
 };

@@ -41,7 +41,7 @@ class MyApp extends Homey.App {
 
     this.log(newMessage);
 
-    let oldText = this.homey.settings.get('diagLog');
+    let oldText = this.homey.settings.get('diagLog') || '';
     if (oldText.length > 10000) {
       // Remove the first 5000 characters.
       oldText = oldText.substring(5000);

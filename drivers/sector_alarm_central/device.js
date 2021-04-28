@@ -15,7 +15,7 @@ const SETTINGS = {
   USERNAME: 'username',
   PASSWORD: 'password',
   SITEID: 'siteid',
-  CODE: 'code',
+  CODE: 'alarmcode',
   POLLINTERVAL: 'pollinterval',
 };
 const DEFAULTPOLLTIME = 30000;
@@ -42,13 +42,7 @@ class MyDevice extends Homey.Device {
 
     this.CheckPollInterval();
 
-    await sectoralarm.connect(username, password, siteid, null)
-      .then(site => {
-        this._site = site;
-      })
-      .catch(error => {
-        this.homey.app.updateLog(error, 0);
-      });
+    await this.connectToSite();
     try {
       this.homey.app.updateLog(`Set up polling for alarm central. Interval ${Number(pollInterval) / 1000} seconds`);
       this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
@@ -61,6 +55,16 @@ class MyDevice extends Homey.Device {
     this.registerFlowCardCondition();
     this.registerFlowCardAction();
     this.homey.app.updateLog('Function onInit end', 2);
+  }
+
+  async connectToSite() {
+    await sectoralarm.connect(username, password, siteid, null)
+      .then(site => {
+        this._site = site;
+      })
+      .catch(error => {
+        this.homey.app.updateLog(error, 0);
+      });
   }
 
   async setInitState() {
@@ -136,11 +140,15 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function registerFLowCardAction end', 2);
   }
 
-  pollAlarmStatus() {
+  async pollAlarmStatus() {
     this.homey.app.updateLog('Function pollAlarmStatus start', 2);
     try {
       this.CheckSettings();
       this.homey.app.updateLog(`Polling att interval: ${Number(pollInterval) / 1000} seconds`, 2);
+
+      if(!this._site){
+        await this.connectToSite();
+      }
 
       this._site.status()
         .then(async status => {
@@ -173,7 +181,7 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function pollAlarmStatus end', 2);
   }
 
-  CheckSettings() {
+  async CheckSettings() {
     this.homey.app.updateLog('Function CheckSettings start', 2);
     const tempPollInterval = pollInterval;
     pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
@@ -308,7 +316,7 @@ class MyDevice extends Homey.Device {
   async setAlarmState(state, action) {
     this.homey.app.updateLog('Function setAlarmState start', 2);
     return new Promise((resolve, reject) => {
-      if (code === '') {
+      if (code || code === '') {
         reject(new Error('No alarm code set'));
       }
 
@@ -318,14 +326,15 @@ class MyDevice extends Homey.Device {
         .then(() => {
           resolve(`Successfully set the alarm to: ${state} `);
         })
-        .catch(error => {
+        .catch(() => {
           sleep(5000).then(() => {
             action(code)
               .then(() => {
                 resolve(`Successfully set the alarm to: ${state} `);
               })
-              .catch(() => {
+              .catch((error) => {
                 reject(new Error(`Faild to set the alarm to: ${state} `));
+                this.homey.app.updateLog(`Error: ${error}`, 0);
               });
           });
         });

@@ -6,6 +6,7 @@
     "node": ">=12.16.1"
   },
   "devDependencies": {
+    "@types/homey": "npm:homey-apps-sdk-v3-types@^0.1.0",
     "eslint": "^7.6.0",
     "eslint-config-athom": "^2.1.0"
   },
