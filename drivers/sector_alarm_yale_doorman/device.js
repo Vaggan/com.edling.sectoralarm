@@ -3,8 +3,6 @@
 const Homey = require('homey');
 const sectoralarm = require('sectoralarm');
 
-let LOCK_ID;
-
 const SETTINGS = {
   USERNAME: 'username',
   PASSWORD: 'password',
@@ -26,9 +24,7 @@ class MyDevice extends Homey.Device {
 
   async onInit() {
     this.homey.app.updateLog('Yale Doorman device has been initialized');
-
-    LOCK_ID = this.getData().id;
-    this.homey.app.updateLog(`LOCK_ID: ${LOCK_ID}`);
+    this.homey.app.updateLog(`LOCK_ID: ${this.getData().id}`);
 
     pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
     username = this.homey.settings.get(SETTINGS.USERNAME);
@@ -63,7 +59,7 @@ class MyDevice extends Homey.Device {
   }
 
   async setInitState() {
-    this._site.locks(LOCK_ID)
+    this._site.locks(this.getData().id)
       .then(lock => {
         this.homey.app.updateLog(`Set initial lock state to: ${lock.state}`);
         this.setCapabilityValue('locked', lock.state === 'locked');
@@ -77,7 +73,7 @@ class MyDevice extends Homey.Device {
     try {
       this.homey.app.updateLog(`pollinterval: ${pollInterval}`, 2);
       this.CheckSettings();
-      this._site.locks(LOCK_ID)
+      this._site.locks(this.getData().id)
         .then(async lock => {
           this.onLockUpdate(JSON.parse(lock)[0]);
         })
@@ -131,7 +127,8 @@ class MyDevice extends Homey.Device {
   onLockUpdate(lock) {
     try {
       this.homey.app.updateLog(`onLockUpdate, current state: ${JSON.stringify(lock)}`);
-      if (lock && lock.status !== this.getCapabilityValue('locked')) {
+      
+      if (lock && ((lock.status === 'locked') !== (this.getCapabilityValue('locked')))) {
         this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
             this.homey.app.updateLog(`Capability value 'locked' changed to: ${lock.status}`);
@@ -151,7 +148,7 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog(`onCapabilityChanged, set locked to: ${value}`);
 
     if (value) {
-      await this._site.lock(LOCK_ID, lockCode)
+      await this._site.lock(this.getData().id, lockCode)
         .then(messag => {
           this.homey.app.updateLog(messag);
           return Promise.resolve();
@@ -161,7 +158,7 @@ class MyDevice extends Homey.Device {
           return Promise.reject(new Error('Failed to lock the door.'));
         });
     } else {
-      await this._site.unlock(LOCK_ID, lockCode)
+      await this._site.unlock(this.getData().id, lockCode)
         .then(messag => {
           this.homey.app.updateLog(messag);
           return Promise.resolve();
