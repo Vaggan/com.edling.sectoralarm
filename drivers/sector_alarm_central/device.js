@@ -316,7 +316,7 @@ class MyDevice extends Homey.Device {
   async setAlarmState(state, action) {
     this.homey.app.updateLog('Function setAlarmState start', 2);
     return new Promise((resolve, reject) => {
-      if (code === '') {
+     if (!code || code === '') {
         reject(new Error('No alarm code set'));
       }
 
