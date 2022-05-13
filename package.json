@@ -10,6 +10,6 @@
     "eslint-config-athom": "^2.1.0"
   },
   "dependencies": {
-    "sectoralarm": "^2.0.6"
+    "sectoralarm": "^2.1.2"
   }
 }
