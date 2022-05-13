@@ -1,0 +1,21 @@
+{
+  "settings": {
+    "alert": {
+      "settingssaved": "Endringene har blitt lagret."
+    },
+    "button": {
+      "save": "Lagre"
+    },
+    "header": {
+      "information": "Informasjon",
+      "settings": "Innstillinger"
+    },
+    "field": {
+      "username": "Brukernavn",
+      "password": "Passord",
+      "code": "Pinkode",
+      "siteid": "SiteId"
+    },
+    "warning": "Av sikkerhetshensyn vennligst ikke legg inn brukernavn/passord for systembruker. En gjestebruker kan opprettes på https://mypagesapi.sectoralarm.net/"
+  }
+}

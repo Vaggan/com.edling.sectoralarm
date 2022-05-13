@@ -15,6 +15,7 @@
       "password": "Password",
       "code": "Code",
       "siteid": "SiteId"
-    }
+    },
+    "warning": "For security reasons please do not use your system owner username/password. A guest account can be created at https://mypagesapi.sectoralarm.net/"
   }
 }

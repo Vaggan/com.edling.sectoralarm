@@ -15,6 +15,7 @@
       "password": "Lösenord",
       "code": "Larmkod",
       "siteid": "SiteId"
-    }
+    },
+    "warning": "Av säkerhetsskäl, använd inte ditt systemägares användarnamn/lösenord. Ett gästkonto kan skapas på https://mypagesapi.sectoralarm.net/"
   }
 }
