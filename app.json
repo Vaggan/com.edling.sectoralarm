@@ -3,14 +3,17 @@
   "version": "0.0.4",
   "compatibility": ">=5.0.0",
   "sdk": 3,
+  "homeyCommunityTopicId": 63591,
   "brandColor": "#FF1C1C",
   "name": {
     "en": "Sector Alarm",
-    "sv": "Sector Alarm"
+    "sv": "Sector Alarm",
+    "no": "Sector Alarm"
   },
   "description": {
     "en": "Home of Safety",
-    "sv": "Din trygghet. Vår passion."
+    "sv": "Din trygghet. Vår passion.",
+    "no": "En tryggere hverdag med alarm."
   },
   "category": [
     "security"
@@ -23,6 +26,19 @@
   "author": {
     "name": "Christopher Edling",
     "email": "christopher.edling@gmail.com"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Frode Heggelund",
+        "email": "frode.heggelund@gmail.com"
+      }
+    ],
+    "translators": [
+      {
+        "name": "Frode Heggelund"
+      }
+    ]
   },
   "contributing": {
     "donate": {
@@ -41,7 +57,8 @@
       "id": "sector_alarm_central",
       "name": {
         "en": "Control panel",
-        "sv": "Manöverpanel"
+        "sv": "Manöverpanel",
+        "no": "Kontrollpanel"
       },
       "class": "homealarm",
       "capabilities": [
@@ -52,28 +69,32 @@
           "type": "enum",
           "title": {
             "en": "Home Alarm state",
-            "sv": "Hemlarmsstatus"
+            "sv": "Hemlarmsstatus",
+            "no": "Alarm status"
           },
           "values": [
             {
               "id": "armed",
               "title": {
                 "en": "Armed",
-                "sv": "Larmat"
+                "sv": "Larmat",
+                "no": "Armert"
               }
             },
             {
               "id": "disarmed",
               "title": {
                 "en": "Disarmed",
-                "sv": "Avlarmat"
+                "sv": "Avlarmat",
+                "no": "Avslått"
               }
             },
             {
               "id": "partially_armed",
               "title": {
                 "en": "Partially armed",
-                "sv": "Skalskydd"
+                "sv": "Skalskydd",
+                "no": "Delvis armert"
               }
             }
           ],
@@ -107,7 +128,8 @@
         "id": "homealarm_state_changed",
         "title": {
           "en": "The state changed",
-          "sv": "Statusen ändrad"
+          "sv": "Statusen ändrad",
+          "no": "Endret status"
         },
         "args": [
           {
@@ -118,21 +140,24 @@
                 "id": "armed",
                 "title": {
                   "en": "Armed",
-                  "sv": "Larmat"
+                  "sv": "Larmat",
+                  "no": "Armert"
                 }
               },
               {
                 "id": "disarmed",
                 "title": {
                   "en": "Disarmed",
-                  "sv": "Avlarmat"
+                  "sv": "Avlarmat",
+                  "no": "Avslått"
                 }
               },
               {
                 "id": "partially_armed",
                 "title": {
                   "en": "Partially armed",
-                  "sv": "Skalskydd"
+                  "sv": "Skalskydd",
+                  "no": "Skallsikring"
                 }
               }
             ]
@@ -145,7 +170,8 @@
         "id": "homealarm_state_is",
         "title": {
           "en": "The state is !{{|not}}",
-          "sv": "Statusen är !{{|inte}}"
+          "sv": "Statusen är !{{|inte}}",
+          "no": "Statusen är !{{|ikke}}"
         },
         "args": [
           {
@@ -156,21 +182,24 @@
                 "id": "armed",
                 "title": {
                   "en": "Armed",
-                  "sv": "Larmat"
+                  "sv": "Larmat",
+                  "no": "Armert"
                 }
               },
               {
                 "id": "disarmed",
                 "title": {
                   "en": "Disarmed",
-                  "sv": "Avlarmat"
+                  "sv": "Avlarmat",
+                  "no": "Avslått"
                 }
               },
               {
                 "id": "partially_armed",
                 "title": {
                   "en": "Partially armed",
-                  "sv": "Skalskydd"
+                  "sv": "Skalskydd",
+                  "sv": "Skallsikring"
                 }
               }
             ]
@@ -183,7 +212,8 @@
         "id": "set_homealarm_state",
         "title": {
           "en": "Set state",
-          "sv": "Ställ in status"
+          "sv": "Ställ in status",
+          "no": "Endre status"
         },
         "args": [
           {
@@ -199,21 +229,24 @@
                 "id": "armed",
                 "title": {
                   "en": "Armed",
-                  "sv": "Larmat"
+                  "sv": "Larmat",
+                  "no": "Armert"
                 }
               },
               {
                 "id": "disarmed",
                 "title": {
                   "en": "Disarmed",
-                  "sv": "Avlarmat"
+                  "sv": "Avlarmat",
+                  "no": "Avslått"
                 }
               },
               {
                 "id": "partially_armed",
                 "title": {
                   "en": "Partially armed",
-                  "sv": "Skalskydd"
+                  "sv": "Skalskydd",
+                  "no": "Skallsikring"
                 }
               }
             ]
