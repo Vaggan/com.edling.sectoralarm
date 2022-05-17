@@ -1,5 +1,9 @@
 {
   "settings": {
+    "tab": {
+      "settings": "Innstillinger",
+      "diagnosticsLog": "Logg"
+    },
     "alert": {
       "settingssaved": "Endringene har blitt lagret."
     },
@@ -13,8 +17,10 @@
     "field": {
       "username": "Brukernavn",
       "password": "Passord",
-      "code": "Pinkode",
+      "alarmcode": "Alarmkode",
       "siteid": "SiteId"
+      "lockcode": "Låsekode",
+      "pollinterval": "Intervall for oppdatering (sekunder)"
     },
     "warning": "Av sikkerhetshensyn vennligst ikke legg inn brukernavn/passord for systembruker. En gjestebruker kan opprettes på https://mypagesapi.sectoralarm.net/"
   }

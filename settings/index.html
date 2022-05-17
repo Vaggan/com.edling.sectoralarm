@@ -4,92 +4,256 @@
 <head>
   <!-- The '/homey.js' script must be included in your settings view to work -->
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+
+  <link href="style.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
-  <fieldset>
-    <legend data-i18n="settings.header.settings">Settings</legend>
 
-    <div class="field row">
-      <label for="username" data-i18n="settings.field.username">Username</label>
-      <input id="username" type="email" value="" />
-    </div>
-    <div class="field row">
-      <label for="password" data-i18n="settings.field.password">Password</label>
-      <input id="password" type="password" value="" />
-    </div>
-    <div class="field row">
-      <label for="code" data-i18n="settings.field.code">Code</label>
-      <input id="code" type="text" value="" />
-    </div>
+  <!-- Tab links -->
+  <div class="tab">
+    <button class="tablinks" onclick="setPage(event, 'settingsPage')" id="settingsTab"><span
+        data-i18n="settings.tab.settings">Settings</span></button>
+    <button class="tablinks" onclick="setPage(event, 'logPage')" id="logTab"><span
+        data-i18n="settings.tab.diagnosticsLog">Log</span></button>
+  </div>
 
-    <h3 style="background-color:rgb(255, 0, 0);" data-i18n="settings.warning">
-        <!-- This will be filled with the translated string with key 'settings.warnings'. -->
-    </h3>
-  </fieldset>
+  <!-- Settings page -->
+  <div id="settingsPage" class="tabcontent">
+    <fieldset>
+      <legend data-i18n="settings.header.alaramsettings">Alarm settings</legend>
 
-  <fieldset>
-    <legend data-i18n="settings.header.information">Information</legend>
-
-    <div class="field row">
       <div class="field row">
-        <label for="siteid" data-i18n="settings.field.siteid">SiteId</label>
-        <input id="siteid" type="text" value="" readonly />
+        <label for="username" data-i18n="settings.field.username">Username</label>
+        <input id="username" type="email" value="" />
       </div>
-  </fieldset>
+      <div class="field row">
+        <label for="password" data-i18n="settings.field.password">Password</label>
+        <input id="password" type="password" value="" />
+      </div>
+      <div class="field row">
+        <label for="alarmcode" data-i18n="settings.field.alarmcode">Code</label>
+        <input id="alarmcode" type="number" value="" />
+      </div>
+      <h3 style="background-color:rgb(255, 0, 0);" data-i18n="settings.warning">
+        <!-- This will be filled with the translated string with key 'settings.warnings'. -->
+      </h3>
+    </fieldset>
 
-  <button id="save" class="right" data-i18n="settings.button.save">Save changes</button>
+    <fieldset>
+      <legend data-i18n="settings.header.locksettings">Lock settings</legend>
+
+      <div class="field row">
+        <label for="lockcode" data-i18n="settings.field.lockcode">Code</label>
+        <input id="lockcode" type="number" value="" />
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-i18n="settings.header.other">Other</legend>
+
+      <div class="field row">
+        <label for="pollinterval" data-i18n="settings.field.pollinterval">Poll interval</label>
+        <input id="pollinterval" type="number" value="" min="30"/>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend data-i18n="settings.header.information">Information</legend>
+
+      <div class="field row">
+        <div class="field row">
+          <label for="siteid" data-i18n="settings.field.siteid">SiteId</label>
+          <input id="siteid" type="text" value="" readonly />
+        </div>
+    </fieldset>
+
+    <button id="save" class="right" data-i18n="settings.button.save">Save changes</button>
+    <!-- <button id="save" class="mdc-button mdc-button--raised right">
+      <span class="mdc-button__label" data-i18n="settings.button.save">Save changes</span>
+    </button> -->
+  </div>
+  <!-- Settings page end -->
+
+  <!-- Log page -->
+  <div id="logPage" class="tabcontent">
+    <div class="field row">
+      <label for="logLevel"><span data-i18n="settings.logLevel"></span></label>
+      <select id="logLevel">
+        <option value=0>Errors Only</option>
+        <option value=1>Basic Information</option>
+        <option value=2>Full Information</option>
+      </select>
+      <P></P>
+    </div>
+    <p>
+      <button id="clearLog"><span data-i18n="settings.ClearLog"></span>Clear</button>
+      <button id="sendLog"><span data-i18n="settings.SendLog"></span>Send</button>
+    </p>
+    <div class="field row">
+      <textarea id="diagLog"></textarea>
+    </div>
+  </div>
+  <!-- Log page end -->
 
   <script type="text/javascript">
-    // a method named 'onHomeyReady' must be present in your code
+
+    // -- Settings page -- //
+    var usernameElement = document.getElementById('username');
+    var passwordElement = document.getElementById('password');
+    var siteidElement = document.getElementById('siteid');
+    var alarmCodeElement = document.getElementById('alarmcode');
+    var lockCodeElement = document.getElementById('lockcode');
+    var pollintervalElement = document.getElementById('pollinterval');
+    var saveElement = document.getElementById('save');
+
+    // -- Log page -- //
+    var diagLogElement = document.getElementById('diagLog');
+    var logLevelElement = document.getElementById('logLevel');
+    var clearLogElement = document.getElementById('clearLog');
+    var sendLogElement = document.getElementById('sendLog');
+
+    // A method named 'onHomeyReady' must be present in your code
     function onHomeyReady(Homey) {
+      // Set tab page to display
+      document.getElementById("settingsTab").click();
 
-      // Tell Homey we're ready to be displayed
-      Homey.ready();
-
-      var usernameElement = document.getElementById('username');
-      var passwordElement = document.getElementById('password');
-      var siteidElement = document.getElementById('siteid');
-      var codeElement = document.getElementById('code');
-      var saveElement = document.getElementById('save');
-
+      // -- Settings page -- //
       Homey.get('username', function (err, username) {
-        if (err) return Homey.alert(err);
+        if (err) username = ""; //Homey.alert(err);
         usernameElement.value = username;
       });
 
       Homey.get('password', function (err, password) {
-        if (err) return Homey.alert(err);
+        if (err) password = ""; //Homey.alert(err);
         passwordElement.value = password;
       });
 
       Homey.get('siteid', function (err, siteid) {
-        if (err) return Homey.alert(err);
+        if (err) siteid = ""; //Homey.alert(err);
         siteidElement.value = siteid;
       });
 
-      Homey.get('code', function (err, code) {
-        if (err) return Homey.alert(err);
-        codeElement.value = code;
+      Homey.get('alarmcode', function (err, code) {
+        if (err) code = ""; //Homey.alert(err);
+        alarmCodeElement.value = code;
+      });
+
+      Homey.get('lockcode', function (err, code) {
+        if (err) code = ""; //Homey.alert(err);
+        lockCodeElement.value = code;
+      });
+
+      Homey.get('pollinterval', function (err, pollinterval) {
+        if (err) pollinterval = 30; //Homey.alert(err);
+        pollintervalElement.value = pollinterval;
       });
 
       saveElement.addEventListener('click', function (e) {
         Homey.set('username', usernameElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('password', passwordElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
         Homey.set('siteid', siteidElement.value, function (err) {
-          if (err) return Homey.alert(err);
+          //if (err) return Homey.alert(err);
         });
-        Homey.set('code', codeElement.value, function (err) {
-          if (err) return Homey.alert(err);
+        Homey.set('alarmcode', alarmCodeElement.value, function (err) {
+          //if (err) return Homey.alert(err);
+        });
+        Homey.set('lockcode', lockCodeElement.value, function (err) {
+          //if (err) return Homey.alert(err);
+        });
+        Homey.set('pollinterval', pollintervalElement.value, function (err) {
+          //if (err) return Homey.alert(err);
         });
         Homey.alert(Homey.__("settings.alert.settingssaved"));
 
       });
+
+      // -- Log page -- //
+      Homey.on('settings.set', function () {
+        Homey.get('logLevel', function (err, logLevel) {
+          if (err) logLevel = 1; //Homey.alert(err);
+          if (!logLevel || logLevel === ''){
+            logLevel = 1;
+          }
+          logLevelElement.value = logLevel;
+        });
+
+        Homey.get('diagLog', function (err, diagLog) {
+          if (err) diagLog = ""; //Homey.alert(err);
+          diagLogElement.value = diagLog;
+        });
+      });
+
+      logLevelElement.addEventListener('change', function (e) {
+        Homey.set('logLevel', logLevelElement.value, function (err) {
+          //if (err) return Homey.alert(err);
+        });
+      });
+
+      clearLogElement.addEventListener('click', function (e) {
+        Homey.set('diagLog', "", function (err) {
+          //if (err) return Homey.alert(err);
+        });
+        diagLogElement.value = "";
+      });
+
+      sendLogElement.addEventListener('click', function (e) {
+        Homey.confirm("Send the log contents to the developer?", null, function (e, ok) {
+          if (ok) {
+            Homey.set('sendLog', "send", function (err) {
+              //if (err) return Homey.alert(err);
+            });
+          }
+        });
+      });
+
+
+      // Tell Homey we're ready to be displayed
+      Homey.ready();
     }
+
+    // -- Tabs -- //
+    function setPage(evt, tabPage) {
+      var i, tabcontent, tablinks;
+
+      // Get all elements with class="tabcontent" and hide them
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+
+      // Get all elements with class="tablinks" and remove the class "active"
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+
+      // Show the current tab, and add an "active" class to the button that opened the tab
+      document.getElementById(tabPage).style.display = "block";
+      evt.currentTarget.className += " active";
+
+      if (tabPage == 'logPage') {
+        // Refresh the log data
+        Homey.get('logLevel', function (err, logLevel) {
+          if (err) logLevel = 1; //Homey.alert(err);
+          logLevelElement.value = logLevel;
+        });
+
+        Homey.get('diagLog', function (err, diagLog) {
+          if (err) diagLog = ""; //Homey.alert(err);
+          diagLogElement.value = diagLog;
+        });
+
+        // Make the log text area fill the page
+        diagLogElement.setAttribute('cols', diagLogElement.parentElement.clientWidth / 8);
+        diagLogElement.style.height = (window.innerHeight - diagLogElement.offsetTop - 40) + 'px';
+      }
+    };
   </script>
 </body>
+
 </html>

@@ -1,5 +1,9 @@
 {
   "settings": {
+    "tab": {
+      "settings": "Inställningar",
+      "diagnosticsLog": "Logg"
+    },
     "alert": {
       "settingssaved": "Dina ändringar har sparats."
     },
@@ -8,13 +12,17 @@
     },
     "header": {
       "information": "Information",
-      "settings": "Inställningar"
+      "alaramsettings": "Alarminställningar",
+      "locksettings": "Låsinställninag",
+      "other": "Annat"
     },
     "field": {
       "username": "Användarnamn",
       "password": "Lösenord",
-      "code": "Larmkod",
-      "siteid": "SiteId"
+      "alarmcode": "Larmkod",
+      "siteid": "SiteId",
+      "lockcode": "Låskod",
+      "pollinterval": "Uppdateringsfrekvens (Sekunder)"
     },
     "warning": "Av säkerhetsskäl, använd inte ditt systemägares användarnamn/lösenord. Ett gästkonto kan skapas på https://mypagesapi.sectoralarm.net/"
   }

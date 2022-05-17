@@ -5,8 +5,8 @@ const sectoralarm = require('sectoralarm');
 
 class MyDriver extends Homey.Driver {
 
-  onInit() {
-    this.homey.app.updateLog('Control panel driver has been initialized');
+  async onInit() {
+    this.homey.app.updateLog('Yale Doorman driver has been initialized');
   }
 
   async onPairListDevices() {
@@ -17,29 +17,34 @@ class MyDriver extends Homey.Driver {
       throw new Error('No credentials, please enter credentials in settings.');
     }
 
-    let devices;
+    const devices = [];
     await sectoralarm.connect(username, password, null, null)
       .then(async site => {
-        await site.status()
-          .then(async status => {
+        await site.info()
+          .then(async info => {
+            this.log(`Status ${info}`);
+            const infoObject = JSON.parse(info);
             if (this.homey.settings.get('siteid') === '') {
-              this.homey.settings.set('siteid', JSON.parse(status).siteId);
+              this.homey.settings.set('siteid', infoObject.siteId);
             }
-            devices = [
-              {
-                name: JSON.parse(status).name,
-                data: { id: JSON.parse(status).siteId },
-              },
-            ];
+            if (infoObject.locks) {
+              infoObject.locks.forEach(lock => {
+                devices.push(
+                  {
+                    name: lock.name,
+                    data: { id: lock.lockId },
+                  },
+                );
+              });
+            }
           })
-          .catch(error => {
-            this.homey.app.updateLog(error, 0);
+          .catch(innerError => {
+            this.homey.app.updateLog(innerError, 0);
           });
       })
-      .catch(error => {
-        this.homey.app.updateLog(error, 0);
+      .catch(innerError => {
+        this.homey.app.updateLog(innerError, 0);
       });
-
     return devices;
   }
 
