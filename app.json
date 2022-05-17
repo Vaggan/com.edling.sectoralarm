@@ -1,6 +1,6 @@
 {
   "id": "com.edling.sectoralarm",
-  "version": "0.0.4",
+  "version": "0.1.4",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "homeyCommunityTopicId": 63591,
@@ -120,6 +120,86 @@
           "template": "add_devices"
         }
       ]
+    },
+    {
+      "id": "sector_alarm_yale_doorman",
+      "name": {
+        "en": "Yale Doorman"
+      },
+      "class": "lock",
+      "capabilities": [
+        "locked"
+      ],
+      "capabilitiesOptions": {
+        "locked": {
+          "type": "boolean",
+          "title": {
+            "en": "Locked",
+            "nl": "Op slot",
+            "de": "Verriegelt",
+            "fr": "Verrouillé",
+            "it": "Chiusa",
+            "sv": "Låst",
+            "no": "Låst",
+            "es": "Cerrada",
+            "da": "Låst"
+          },
+          "desc": {
+            "en": "True when the lock is locked",
+            "nl": "Geeft aan wanneer iets op slot is",
+            "de": "True, wenn das Schloss verriegelt ist",
+            "fr": "Vrai, si le verrou est verrouillé",
+            "it": "Vero quando la serratura è chiusa",
+            "sv": "Sant när låset är låst",
+            "no": "Sant når låsen er låst",
+            "es": "Verdadero cuando la cerradura está cerrada",
+            "da": "Sandt, når låsen er låst"
+          },
+          "insights": true,
+          "insightsTitleTrue": {
+            "en": "Locked",
+            "nl": "Vergrendeld",
+            "de": "Verriegelt",
+            "fr": "Verrouillé",
+            "it": "Chiusa",
+            "sv": "Låst",
+            "no": "Låst",
+            "es": "Cerrada",
+            "da": "Låst"
+          },
+          "insightsTitleFalse": {
+            "en": "Unlocked",
+            "nl": "Ontgrendeld",
+            "de": "Entriegelt",
+            "fr": "Déverrouillé",
+            "it": "Aperta",
+            "sv": "Olåst",
+            "no": "Ulåst",
+            "es": "Abierta",
+            "da": "Ulåst"
+          },
+          "getable": true,
+          "setable": true,
+          "uiComponent": "toggle"
+        }
+      },
+      "images": {
+        "large": "/drivers/sector_alarm_yale_doorman/assets/images/large.png",
+        "small": "/drivers/sector_alarm_yale_doorman/assets/images/small.png"
+      },
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices"
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ]
     }
   ],
   "flow": {
@@ -130,6 +210,10 @@
           "en": "The state changed",
           "sv": "Statusen ändrad",
           "no": "Endret status"
+        },
+        "titleFormatted": {
+          "en": "The state changed to [[state]]",
+          "sv": "Statusen ändrades till [[state]]"
         },
         "args": [
           {
@@ -173,6 +257,10 @@
           "sv": "Statusen är !{{|inte}}",
           "no": "Statusen är !{{|ikke}}"
         },
+        "titleFormatted": {
+          "en": "The state is [[state]]",
+          "sv": "Statusen är [[state]]"
+        },
         "args": [
           {
             "name": "state",
@@ -214,6 +302,10 @@
           "en": "Set state",
           "sv": "Ställ in status",
           "no": "Endre status"
+        },
+        "titleFormatted": {
+          "en": "Set [[device]] state [[state]]",
+          "sv": "Sätt statusen för [[device]] till [[state]]"
         },
         "args": [
           {
