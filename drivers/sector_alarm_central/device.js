@@ -194,7 +194,7 @@ class MyDevice extends Homey.Device {
       this.homey.app.updateLog(`Poll interval old: ${tempPollInterval} new: ${pollInterval}`);
       this.CheckPollInterval();
       this.homey.app.updateLog('Restart poll timer', 2);
-      clearTimeout(this._pollAlarmInterval);
+      clearInterval(this._pollAlarmInterval);
       this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
     }
     this.homey.app.updateLog('Function CheckSettings end', 2);

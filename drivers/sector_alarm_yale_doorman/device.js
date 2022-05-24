@@ -111,7 +111,7 @@ class MyDevice extends Homey.Device {
     if (!(tempPollInterval === pollInterval)) {
       this.homey.app.updateLog(`Change poll insterval to: ${Number(pollInterval) / 1000} seconds`);
       this.CheckPollInterval();
-      clearTimeout(this._pollInterval);
+      clearInterval(this._pollInterval);
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
     }
   }
