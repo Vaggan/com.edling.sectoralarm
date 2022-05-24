@@ -259,7 +259,8 @@
         },
         "titleFormatted": {
           "en": "The state is [[state]]",
-          "sv": "Statusen är [[state]]"
+          "sv": "Statusen är [[state]]",
+          "no": "Statusen er [[state]]"
         },
         "args": [
           {
@@ -305,7 +306,8 @@
         },
         "titleFormatted": {
           "en": "Set [[device]] state [[state]]",
-          "sv": "Sätt statusen för [[device]] till [[state]]"
+          "sv": "Sätt statusen för [[device]] till [[state]]",
+          "no": "Sett statusen for [[device]] til [[state]]"
         },
         "args": [
           {
