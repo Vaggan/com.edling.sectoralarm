@@ -59,7 +59,10 @@ class MyDevice extends Homey.Device {
   }
 
   async connectToSite() {
-    await sectoralarm.connect(username, password, siteid, null)
+    var settings = sectoralarm.createSettings();
+    settings.numberOfRetries = 10;
+    settings.retryDelayInMs  = 5000;
+    await sectoralarm.connect(username, password, siteid, settings)
       .then(site => {
         this._site = site;
       })
