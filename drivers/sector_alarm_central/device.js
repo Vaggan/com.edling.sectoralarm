@@ -48,6 +48,7 @@ class MyDevice extends Homey.Device {
       this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
     } catch (error) {
       this.homey.app.updateLog(error, 0);
+      this.setUnavailable(error);
     }
 
     await this.setInitState();
@@ -58,12 +59,16 @@ class MyDevice extends Homey.Device {
   }
 
   async connectToSite() {
-    await sectoralarm.connect(username, password, siteid, null)
+    var settings = sectoralarm.createSettings();
+    settings.numberOfRetries = 10;
+    settings.retryDelayInMs  = 5000;
+    await sectoralarm.connect(username, password, siteid, settings)
       .then(site => {
         this._site = site;
       })
       .catch(error => {
         this.homey.app.updateLog(error, 0);
+        this.setUnavailable(error);
       });
   }
 
@@ -85,6 +90,7 @@ class MyDevice extends Homey.Device {
       })
       .catch(error => {
         this.homey.app.updateLog(error, 0);
+        this.setUnavailable(error);
       });
     this.homey.app.updateLog('Function setInitState end', 2);
   }
@@ -109,6 +115,7 @@ class MyDevice extends Homey.Device {
           })
           .catch(error => {
             this.homey.app.updateLog(error, 0);
+            this.setUnavailable(error);
           });
       });
     this.homey.app.updateLog('Function registerFlowCardCondition end', 2);
@@ -156,6 +163,7 @@ class MyDevice extends Homey.Device {
           this.homey.app.updateLog(`Current alarm state ${JSON.parse(status).armedStatus}`);
           this.onAlarmUpdate(status);
           Promise.resolve().catch(this.homey.app.updateLog);
+          this.setAvailable()
         })
         .catch(async error => {
           if (error.code === 'ERR_INVALID_SESSION') {
@@ -169,14 +177,17 @@ class MyDevice extends Homey.Device {
                 })
                 .catch(innerError => {
                   this.homey.app.updateLog(innerError, 0);
+                  this.setUnavailable(innerError);
                 });
             }
           } else {
             this.homey.app.updateLog(error, 0);
+            this.setUnavailable(error);
           }
         });
     } catch (error) {
       this.homey.app.updateLog(error, 0);
+      this.setUnavailable(error);
     }
     this.homey.app.updateLog('Function pollAlarmStatus end', 2);
   }
@@ -194,7 +205,7 @@ class MyDevice extends Homey.Device {
       this.homey.app.updateLog(`Poll interval old: ${tempPollInterval} new: ${pollInterval}`);
       this.CheckPollInterval();
       this.homey.app.updateLog('Restart poll timer', 2);
-      clearTimeout(this._pollAlarmInterval);
+      clearInterval(this._pollAlarmInterval);
       this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
     }
     this.homey.app.updateLog('Function CheckSettings end', 2);
@@ -231,10 +242,12 @@ class MyDevice extends Homey.Device {
           })
           .catch(error => {
             this.homey.app.updateLog(error, 0);
+            this.setUnavailable(error);
           });
       }
     } catch (error) {
       this.homey.app.updateLog(error, 0);
+      this.setUnavailable(error);
     }
     this.homey.app.updateLog('Function onAlarmUpdate end', 2);
   }
@@ -249,9 +262,11 @@ class MyDevice extends Homey.Device {
         .then(this.homey.app.updateLog(`Flow homealarm_state_changed triggered whith state: ${triggeredState} `))
         .catch(error => {
           this.homey.app.updateLog(error, 0);
+          this.setUnavailable(error);
         });
     } catch (error) {
       this.homey.app.updateLog(error, 0);
+      this.setUnavailable(error);
     }
     this.homey.app.updateLog('Function triggerFlow end', 2);
   }
@@ -262,6 +277,7 @@ class MyDevice extends Homey.Device {
       this.pollAlarmStatus();
     } catch (error) {
       this.homey.app.updateLog(error, 0);
+      this.setUnavailable(error);
     }
     this.homey.app.updateLog('Function onAdded end', 2);
   }
@@ -279,6 +295,7 @@ class MyDevice extends Homey.Device {
             })
             .catch(error => {
               this.homey.app.updateLog(error, 0);
+              this.setUnavailable(error);
               reject(error);
             });
           break;
@@ -290,6 +307,7 @@ class MyDevice extends Homey.Device {
             })
             .catch(error => {
               this.homey.app.updateLog(error, 0);
+              this.setUnavailable(error);
               reject(error);
             });
           break;
@@ -302,11 +320,14 @@ class MyDevice extends Homey.Device {
             })
             .catch(error => {
               this.homey.app.updateLog(error, 0);
+              this.setUnavailable(error);
               reject(error);
             });
           break;
         default:
-          reject(new Error('Failed to set alarm state.'));
+          let error = new Error('Failed to set alarm state.')
+          this.setUnavailable(error);
+          reject(error);
           break;
       }
       this.homey.app.updateLog('Function onCapabilityChanged end', 2);
@@ -316,14 +337,17 @@ class MyDevice extends Homey.Device {
   async setAlarmState(state, action) {
     this.homey.app.updateLog('Function setAlarmState start', 2);
     return new Promise((resolve, reject) => {
-     if (!code || code === '') {
-        reject(new Error('No alarm code set'));
+      if (!code || code === '') {
+        let error = new Error('No alarm code set')
+        this.setUnavailable(error);
+        reject(error);
       }
 
       const sleep = m => new Promise(r => setTimeout(r, m));
 
       action(code)
         .then(() => {
+          this.setAvailable()
           resolve(`Successfully set the alarm to: ${state} `);
         })
         .catch(() => {
@@ -335,6 +359,7 @@ class MyDevice extends Homey.Device {
               .catch((error) => {
                 reject(new Error(`Faild to set the alarm to: ${state} `));
                 this.homey.app.updateLog(`Error: ${error}`, 0);
+                this.setUnavailable(error);
               });
           });
         });

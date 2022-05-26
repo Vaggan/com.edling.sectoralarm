@@ -1,5 +1,9 @@
 {
   "settings": {
+    "tab": {
+      "settings": "Inställningar",
+      "diagnosticsLog": "Logg"
+    },
     "alert": {
       "settingssaved": "Dina ändringar har sparats."
     },
@@ -19,6 +23,7 @@
       "siteid": "SiteId",
       "lockcode": "Låskod",
       "pollinterval": "Uppdateringsfrekvens (Sekunder)"
-    }
+    },
+    "warning": "Av säkerhetsskäl, använd inte ditt systemägares användarnamn/lösenord. Ett gästkonto kan skapas på https://mypagesapi.sectoralarm.net/"
   }
 }

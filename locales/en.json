@@ -1,5 +1,9 @@
 {
   "settings": {
+    "tab": {
+      "settings": "Settings",
+      "diagnosticsLog": "Log"
+    },
     "alert": {
       "settingssaved": "Your changes have been saved."
     },
@@ -19,6 +23,7 @@
       "siteid": "SiteId",
       "lockcode": "Lock code",
       "pollinterval": "Poll interval (seconds)"
-    }
+    },
+    "warning": "For security reasons please do not use your system owner username/password. A guest account can be created at https://mypagesapi.sectoralarm.net/"
   }
 }

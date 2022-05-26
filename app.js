@@ -21,7 +21,7 @@ class MyApp extends Homey.App {
 
     this.homey.settings.on('set', setting => {
       if (setting === 'diagLog') return;
-      this.log(`Setting "${setting}" has chenged`);
+      this.log(`Setting "${setting}" has changed`);
       const diagLog = this.homey.settings.get('diagLog');
       const sendLog = this.homey.settings.get('sendLog');
       if (setting === 'sendLog' && (sendLog === 'send') && (diagLog !== '')) {
