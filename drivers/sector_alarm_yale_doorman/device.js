@@ -34,23 +34,23 @@ class MyDevice extends Homey.Device {
 
     this.CheckPollInterval();
 
-    var settings = sectoralarm.createSettings();
+    const settings = sectoralarm.createSettings();
     settings.numberOfRetries = 10;
-    settings.retryDelayInMs  = 5000;
+    settings.retryDelayInMs = 5000;
     await sectoralarm.connect(username, password, siteid, settings)
       .then(site => {
         this._site = site;
       })
       .catch(error => {
         this.homey.app.updateLog(error, 0);
-        this.setUnavailable(error)
+        this.setUnavailable(error);
       });
 
     try {
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), pollInterval);
     } catch (error) {
       this.homey.app.updateLog(error, 0);
-      this.setUnavailable(error)
+      this.setUnavailable(error);
     }
 
     await this.setInitState();
@@ -68,11 +68,11 @@ class MyDevice extends Homey.Device {
       .then(lock => {
         this.homey.app.updateLog(`Set initial lock state to: ${lock.state}`);
         this.setCapabilityValue('locked', lock.state === 'locked');
-        this.setAvailable()
+        this.setAvailable();
       })
       .catch(error => {
         this.homey.app.updateLog(error, 0);
-        this.setUnavailable(error)
+        this.setUnavailable(error);
       });
   }
 
@@ -83,7 +83,7 @@ class MyDevice extends Homey.Device {
       this._site.locks(this.getData().id)
         .then(async lock => {
           this.onLockUpdate(JSON.parse(lock)[0]);
-          this.setAvailable()
+          this.setAvailable();
         })
         .catch(async error => {
           if (error.code === 'ERR_INVALID_SESSION') {
@@ -97,7 +97,7 @@ class MyDevice extends Homey.Device {
                 })
                 .catch(innerError => {
                   this.homey.app.updateLog(innerError, 0);
-                  this.setUnavailable(innerError)
+                  this.setUnavailable(innerError);
                 });
             } else {
               this.homey.app.updateLog(error, 0);
@@ -138,7 +138,7 @@ class MyDevice extends Homey.Device {
   onLockUpdate(lock) {
     try {
       this.homey.app.updateLog(`onLockUpdate, current state: ${JSON.stringify(lock)}`);
-      
+
       if (lock && ((lock.status === 'locked') !== (this.getCapabilityValue('locked')))) {
         this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
@@ -148,12 +148,12 @@ class MyDevice extends Homey.Device {
           .catch(error => {
             this.homey.app.updateLog(`Could not change lock state to ${lock.status}`);
             this.homey.app.updateLog(error, 0);
-            this.setUnavailable(error)
+            this.setUnavailable(error);
           });
       }
     } catch (error) {
       this.homey.app.updateLog(error, 0);
-      this.setUnavailable(error)
+      this.setUnavailable(error);
     }
   }
 
@@ -168,7 +168,7 @@ class MyDevice extends Homey.Device {
         })
         .catch(error => {
           this.homey.app.updateLog(error, 0);
-          this.setUnavailable(error)
+          this.setUnavailable(error);
           return Promise.reject(new Error('Failed to lock the door.'));
         });
     } else {
@@ -179,7 +179,7 @@ class MyDevice extends Homey.Device {
         })
         .catch(error => {
           this.homey.app.updateLog(error, 0);
-          this.setUnavailable(error)
+          this.setUnavailable(error);
           return Promise.reject(new Error('Failed to unlock the door.'));
         });
     }
