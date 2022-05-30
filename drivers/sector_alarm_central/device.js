@@ -59,9 +59,9 @@ class MyDevice extends Homey.Device {
   }
 
   async connectToSite() {
-    var settings = sectoralarm.createSettings();
+    const settings = sectoralarm.createSettings();
     settings.numberOfRetries = 10;
-    settings.retryDelayInMs  = 5000;
+    settings.retryDelayInMs = 5000;
     await sectoralarm.connect(username, password, siteid, settings)
       .then(site => {
         this._site = site;
@@ -153,7 +153,7 @@ class MyDevice extends Homey.Device {
       this.CheckSettings();
       this.homey.app.updateLog(`Polling att interval: ${Number(pollInterval) / 1000} seconds`, 2);
 
-      if(!this._site){
+      if (!this._site) {
         await this.connectToSite();
       }
 
@@ -163,7 +163,7 @@ class MyDevice extends Homey.Device {
           this.homey.app.updateLog(`Current alarm state ${JSON.parse(status).armedStatus}`);
           this.onAlarmUpdate(status);
           Promise.resolve().catch(this.homey.app.updateLog);
-          this.setAvailable()
+          this.setAvailable();
         })
         .catch(async error => {
           if (error.code === 'ERR_INVALID_SESSION') {
@@ -324,11 +324,12 @@ class MyDevice extends Homey.Device {
               reject(error);
             });
           break;
-        default:
-          let error = new Error('Failed to set alarm state.')
+        default: {
+          const error = new Error('Failed to set alarm state.');
           this.setUnavailable(error);
           reject(error);
           break;
+        }
       }
       this.homey.app.updateLog('Function onCapabilityChanged end', 2);
     });
@@ -338,7 +339,7 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function setAlarmState start', 2);
     return new Promise((resolve, reject) => {
       if (!code || code === '') {
-        let error = new Error('No alarm code set')
+        const error = new Error('No alarm code set');
         this.setUnavailable(error);
         reject(error);
       }
@@ -347,7 +348,7 @@ class MyDevice extends Homey.Device {
 
       action(code)
         .then(() => {
-          this.setAvailable()
+          this.setAvailable();
           resolve(`Successfully set the alarm to: ${state} `);
         })
         .catch(() => {
@@ -356,7 +357,7 @@ class MyDevice extends Homey.Device {
               .then(() => {
                 resolve(`Successfully set the alarm to: ${state} `);
               })
-              .catch((error) => {
+              .catch(error => {
                 reject(new Error(`Faild to set the alarm to: ${state} `));
                 this.homey.app.updateLog(`Error: ${error}`, 0);
                 this.setUnavailable(error);
