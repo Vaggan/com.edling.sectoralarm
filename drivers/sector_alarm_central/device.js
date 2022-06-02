@@ -44,7 +44,7 @@ class MyDevice extends Homey.Device {
   }
 
   async setInitState() {
-    await this.homey.app.updateLog('Function setInitState start', 2);
+    this.homey.app.updateLog('Function setInitState start', 2);
     try {
       const new_status = await this.homey.app.status()
       let armedState;

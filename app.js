@@ -24,7 +24,6 @@ if (process.env.DEBUG === '1') {
 class MyApp extends Homey.App {
 
   onInit() {
-    this.log("App init was called")
     this.homeyLog = new Log({ homey: this.homey });
     this.updateLog('MyApp is running...');
     this.homey.settings.set('diagLog', '');
