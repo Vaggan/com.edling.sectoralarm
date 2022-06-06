@@ -22,10 +22,10 @@ class MyDevice extends Homey.Device {
     try {
       await this.homey.app.connectToSite();
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), this.pollInterval);
-    } catch(error) {
-      this.homey.app.updateLog("yd get site Err y1: " + error, 0);
+    } catch (error) {
+      this.homey.app.updateLog(`yd get site Err y1: ${error}`, 0);
       this.setUnavailable(error);
-    };
+    }
 
     await this.setInitState();
     this.registerCapabilityListener('locked', this.onCapabilityChanged.bind(this));
@@ -39,7 +39,7 @@ class MyDevice extends Homey.Device {
 
   async setInitState() {
     try {
-      const lock = await this.homey.app.locks(this.getData().id)
+      const lock = await this.homey.app.locks(this.getData().id);
       this.homey.app.updateLog(`Set initial lock state to: ${lock.state}`);
       this.setCapabilityValue('locked', lock.state === 'locked');
       this.setAvailable();
@@ -53,7 +53,7 @@ class MyDevice extends Homey.Device {
     try {
       this.homey.app.updateLog(`pollinterval: ${this.pollInterval}`, 2);
       this.CheckSettings();
-      const lock = await this.homey.app.locks(this.getData().id)
+      const lock = await this.homey.app.locks(this.getData().id);
       this.onLockUpdate(JSON.parse(lock)[0]);
       this.setAvailable();
     } catch (error) {
