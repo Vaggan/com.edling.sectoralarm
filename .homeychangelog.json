@@ -34,5 +34,10 @@
   "0.1.4": {
     "en": "Bug fixes",
     "sv": "Bugfixar"
+  },
+  "0.1.5": {
+    "en": "Fixed problems with stability, Added Norwegian translations, Fixed bugs",
+    "sv": "Fixade problem med stabilitet, tillagda norska översättningar, Fixade buggar",
+    "no": "Rettet problemer med stabilitet, Lagt til norske oversettelser, Rettet feil"
   }
 }
