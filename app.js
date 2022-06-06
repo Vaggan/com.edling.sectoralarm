@@ -6,6 +6,16 @@
 const Homey = require('homey');
 const nodemailer = require('nodemailer');
 const { Log } = require('homey-log');
+const sectoralarm = require('sectoralarm');
+const Mutex = require('async-mutex').Mutex;
+
+const SETTINGS = {
+  USERNAME: 'username',
+  PASSWORD: 'password',
+  SITEID: 'siteid',
+  LOCKCODE: 'lockcode',
+  POLLINTERVAL: 'pollinterval',
+};
 
 if (process.env.DEBUG === '1') {
   require('inspector').open(9229, '0.0.0.0', false);
@@ -18,6 +28,13 @@ class MyApp extends Homey.App {
     this.updateLog('MyApp is running...');
     this.homey.settings.set('diagLog', '');
     this.homey.settings.set('sendLog', '');
+    this.mutex = new Mutex();
+    this._site = null;
+    this._password = null;
+    this._username = null;
+    this._siteid = null;
+    this._MaxRetryLoginCount = 10;
+    this._retryLoginCount = this._MaxRetryLoginCount;
 
     this.homey.settings.on('set', setting => {
       if (setting === 'diagLog') return;
@@ -147,6 +164,142 @@ class MyApp extends Homey.App {
     return '';
   }
 
+}
+
+
+
+// *****************************************************************************
+// ***                WRAPPER FUNCTIONS FOR SECTOR_ALARM API                 ***
+// *****************************************************************************
+
+// Private function to get and refresh SectorAlarm connection
+async function private_connectToSite(app) {
+  const username = await app.homey.settings.get(SETTINGS.USERNAME);
+  const password = await app.homey.settings.get(SETTINGS.PASSWORD);
+  const siteid = await app.homey.settings.get(SETTINGS.SITEID);
+  if (app._site === null ||
+    app._password != password ||
+    app._username != username ||
+    app._siteid   != siteid) {
+
+    const settings = await sectoralarm.createSettings();
+    settings.numberOfRetries = 10;
+    settings.retryDelayInMs = 5000;
+    app._password = password
+    app._username = username
+    app._siteid = siteid
+
+    await sectoralarm.connect(username, password, siteid, settings)
+    .then(site => {
+      app.updateLog("private_connectToSite -> Got connection")
+      app._site = site;
+      return true;
+    })
+    .catch(error => {
+      app.updateLog("private_connectToSite -> Error: No connection", 0)
+      throw(error);
+    });
+  } else {
+    return true;
+  }
+}
+
+
+// Private wraper function to enforce retrying all sectoralarm api calls upon errors
+// Any parameters after the "functioncall" variable will be passed on to "functioncall"
+// when it is called
+async function private_sectoralarmWrapper(functioncall) {
+  // Make sure there is a connection first and refresh it if broken
+  try {
+    await private_connectToSite(this);
+  } catch(error) {
+    this.updateLog("private_sectoralarmWrapper -> reconnect err", 0);
+    throw(error);
+  }
+  // Try to execute the api call
+  try {
+    const args = Array.prototype.slice.call(arguments, 1); // Only pass on arguments that belong to the function call
+    const retval = await functioncall.apply(this._site, args);
+    this._retryLoginCount = this._MaxRetryLoginCount;
+    this.updateLog("private_sectoralarmWrapper -> Success: " + String(retval));
+    return retval;
+  } catch (error) {
+    // Upon error retry until we get positive api call response or retry limit is reached
+    if (error.code === 'ERR_INVALID_SESSION') {
+      this.updateLog('private_sectoralarmWrapper Info: Invalid session, logging back in.');
+      if (this._retryLoginCount > 0) {
+        this.updateLog("private_sectoralarmWrapper -> Retry logon (" + String(this._retryLoginCount) + ")");
+        this._retryLoginCount--;
+
+        try {
+          await this._site.login();
+          return private_sectoralarmWrapper.apply(this, arguments);
+        } catch(innerError) {
+          this.updateLog("private_sectoralarmWrapper Error getting status: " + innerError, 0);
+          throw(innerError);
+        }
+      } else {
+        this.updateLog("private_sectoralarmWrapper -> inner err code was: " + error.code, 0);
+        throw(error);
+      }
+    } else {
+      // Pass on errors
+      this.updateLog("private_sectoralarmWrapper -> outer err code was: " + String(error.code), 0);
+      throw(error);
+    }
+  }
+}
+
+// Wrap all sectoralarm function calls inside mutex-protected promises
+async function private_sectoralarmProtectedWrapper(functioncall) {
+  return new Promise(async (resolve, reject) => {
+    await this.mutex.runExclusive( async() => {
+      try {
+        const value = await private_sectoralarmWrapper.apply(this, arguments);
+        resolve (value);
+      } catch (error) {
+        reject(error);
+      }
+    })
+  })
+}
+
+
+// Create prototype functions for all sectoralarm API calls that need to be handled
+// by the wrapper functions above
+
+MyApp.prototype.connectToSite = async function() {
+  await this.mutex.runExclusive( async() => {
+    return await private_connectToSite(this)
+  })
+}
+
+MyApp.prototype.status = async function() {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.status);
+}
+
+MyApp.prototype.locks = async function(lock_id) {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.locks, lock_id);
+}
+
+MyApp.prototype.lock = async function(lock_id, code) {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.lock, lock_id, code);
+}
+
+MyApp.prototype.unlock = async function(lock_id, code) {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.unlock, lock_id, code);
+}
+
+MyApp.prototype.arm = async function(code) {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.arm, code);
+}
+
+MyApp.prototype.disarm = async function(code) {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.disarm, code);
+}
+
+MyApp.prototype.partialArm = async function(code) {
+  return private_sectoralarmProtectedWrapper.call(this, this._site.partialArm, code);
 }
 
 module.exports = MyApp;

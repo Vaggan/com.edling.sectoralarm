@@ -1,7 +1,6 @@
 'use strict';
 
 const Homey = require('homey');
-const sectoralarm = require('sectoralarm');
 
 const ALARMSTATE = {
   ARMED: 'armed',
@@ -12,21 +11,10 @@ const ALARMSTATE = {
   },
 };
 const SETTINGS = {
-  USERNAME: 'username',
-  PASSWORD: 'password',
-  SITEID: 'siteid',
   CODE: 'alarmcode',
   POLLINTERVAL: 'pollinterval',
 };
 const DEFAULTPOLLTIME = 30000;
-
-let pollInterval = '';
-let username = '';
-let password = '';
-let siteid = '';
-let code = '';
-
-let retryLogin = true;
 
 class MyDevice extends Homey.Device {
 
@@ -34,18 +22,15 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function onInit start', 2);
     this.homey.app.updateLog('Control panel device has been inited');
 
-    pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
-    username = this.homey.settings.get(SETTINGS.USERNAME);
-    password = this.homey.settings.get(SETTINGS.PASSWORD);
-    siteid = this.homey.settings.get(SETTINGS.SITEID);
-    code = this.homey.settings.get(SETTINGS.CODE);
+    this.pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
+    this.code = this.homey.settings.get(SETTINGS.CODE);
 
     this.CheckPollInterval();
 
-    await this.connectToSite();
     try {
-      this.homey.app.updateLog(`Set up polling for alarm central. Interval ${Number(pollInterval) / 1000} seconds`);
-      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
+      await this.homey.app.connectToSite();
+      this.homey.app.updateLog(`Set up polling for alarm central. Interval ${Number(this.pollInterval) / 1000} seconds`);
+      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), this.pollInterval);
     } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
@@ -58,40 +43,25 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function onInit end', 2);
   }
 
-  async connectToSite() {
-    const settings = sectoralarm.createSettings();
-    settings.numberOfRetries = 10;
-    settings.retryDelayInMs = 5000;
-    await sectoralarm.connect(username, password, siteid, settings)
-      .then(site => {
-        this._site = site;
-      })
-      .catch(error => {
-        this.homey.app.updateLog(error, 0);
-        this.setUnavailable(error);
-      });
-  }
-
   async setInitState() {
     this.homey.app.updateLog('Function setInitState start', 2);
-    this._site.status()
-      .then(async status => {
-        let armedState;
-        this.homey.app.updateLog(`Alarm state from Sector Alarm ${JSON.parse(status).armedStatus}`, 2);
-        switch (JSON.parse(status).armedStatus) {
-          case ALARMSTATE.PARTIALYARMED.SECTOR:
-            armedState = ALARMSTATE.PARTIALYARMED.HOMEY;
-            break;
-          default:
-            armedState = JSON.parse(status).armedStatus;
-        }
-        this.homey.app.updateLog(`Set initial alarm state to ${armedState}`);
-        this.setCapabilityValue('homealarm_state', armedState);
-      })
-      .catch(error => {
-        this.homey.app.updateLog(error, 0);
-        this.setUnavailable(error);
-      });
+    try {
+      const new_status = await this.homey.app.status()
+      let armedState;
+      this.homey.app.updateLog(`Alarm state from Sector Alarm ${JSON.parse(new_status).armedStatus}`, 2);
+      switch (JSON.parse(new_status).armedStatus) {
+        case ALARMSTATE.PARTIALYARMED.SECTOR:
+          armedState = ALARMSTATE.PARTIALYARMED.HOMEY;
+          break;
+        default:
+          armedState = JSON.parse(new_status).armedStatus;
+      }
+      this.homey.app.updateLog(`Set initial alarm state to ${armedState}`);
+      this.setCapabilityValue('homealarm_state', armedState);
+    } catch (error) {
+      this.homey.app.updateLog(error, 0);
+      this.setUnavailable(error);
+    }
     this.homey.app.updateLog('Function setInitState end', 2);
   }
 
@@ -101,7 +71,7 @@ class MyDevice extends Homey.Device {
 
     alarmStateCondition
       .registerRunListener(async (args, state) => {
-        this._site.status()
+        await this.homey.app.status()
           .then(async status => {
             this.homey.app.updateLog(`State ${state}`);
             this.homey.app.updateLog(`Status ${JSON.parse(status).armedStatus}`);
@@ -129,15 +99,15 @@ class MyDevice extends Homey.Device {
         switch (state) {
           case ALARMSTATE.ARMED:
             this.homey.app.updateLog('Arming');
-            this._site.arm(code);
+            this.homey.app.arm(this.code);
             break;
           case ALARMSTATE.DISARMED:
             this.homey.app.updateLog('Disarming');
-            this._site.disarm(code);
+            this.homey.app.disarm(this.code);
             break;
           case ALARMSTATE.PARTIALYARMED.HOMEY:
             this.homey.app.updateLog('Arming perimeter');
-            this._site.partialArm(code);
+            this.homey.app.partialArm(this.code);
             break;
           default:
             this.homey.app.updateLog('No action taken');
@@ -150,41 +120,14 @@ class MyDevice extends Homey.Device {
   async pollAlarmStatus() {
     this.homey.app.updateLog('Function pollAlarmStatus start', 2);
     try {
-      this.CheckSettings();
-      this.homey.app.updateLog(`Polling att interval: ${Number(pollInterval) / 1000} seconds`, 2);
+      await this.CheckSettings();
+      this.homey.app.updateLog(`Polling at interval: ${Number(this.pollInterval) / 1000} seconds`, 2);
 
-      if (!this._site) {
-        await this.connectToSite();
-      }
-
-      this._site.status()
-        .then(async status => {
-          retryLogin = true;
-          this.homey.app.updateLog(`Current alarm state ${JSON.parse(status).armedStatus}`);
-          this.onAlarmUpdate(status);
-          Promise.resolve().catch(this.homey.app.updateLog);
-          this.setAvailable();
-        })
-        .catch(async error => {
-          if (error.code === 'ERR_INVALID_SESSION') {
-            this.homey.app.updateLog('Info: Invalid session, logging back in.');
-            if (retryLogin) {
-              retryLogin = false;
-              await this._site.login()
-                .then(() => {
-                  retryLogin = true;
-                  this.pollAlarmStatus();
-                })
-                .catch(innerError => {
-                  this.homey.app.updateLog(innerError, 0);
-                  this.setUnavailable(innerError);
-                });
-            }
-          } else {
-            this.homey.app.updateLog(error, 0);
-            this.setUnavailable(error);
-          }
-        });
+      const new_status = await this.homey.app.status();
+      this.homey.app.updateLog(`Current alarm state ${JSON.parse(new_status).armedStatus}`);
+      this.onAlarmUpdate(new_status);
+      Promise.resolve().catch(this.homey.app.updateLog); // TODO: Where did this code line come from, it looks fishy
+      this.setAvailable();
     } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
@@ -194,26 +137,23 @@ class MyDevice extends Homey.Device {
 
   async CheckSettings() {
     this.homey.app.updateLog('Function CheckSettings start', 2);
-    const tempPollInterval = pollInterval;
-    pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
-    username = this.homey.settings.get(SETTINGS.USERNAME);
-    password = this.homey.settings.get(SETTINGS.PASSWORD);
-    siteid = this.homey.settings.get(SETTINGS.SITEID);
-    code = this.homey.settings.get(SETTINGS.CODE);
+    const tempPollInterval = this.pollInterval;
+    this.pollInterval = this.homey.settings.get(SETTINGS.POLLINTERVAL) * 1000;
+    this.code = this.homey.settings.get(SETTINGS.CODE);
 
-    if (!(tempPollInterval === pollInterval)) {
-      this.homey.app.updateLog(`Poll interval old: ${tempPollInterval} new: ${pollInterval}`);
+    if (!(tempPollInterval === this.pollInterval)) {
+      this.homey.app.updateLog(`Poll interval old: ${tempPollInterval} new: ${this.pollInterval}`);
       this.CheckPollInterval();
       this.homey.app.updateLog('Restart poll timer', 2);
       clearInterval(this._pollAlarmInterval);
-      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), pollInterval);
+      this._pollAlarmInterval = setInterval(this.pollAlarmStatus.bind(this), this.pollInterval);
     }
     this.homey.app.updateLog('Function CheckSettings end', 2);
   }
 
   CheckPollInterval() {
-    if (pollInterval < DEFAULTPOLLTIME) {
-      pollInterval = DEFAULTPOLLTIME;
+    if (this.pollInterval < DEFAULTPOLLTIME) {
+      this.pollInterval = DEFAULTPOLLTIME;
       this.homey.settings.set(SETTINGS.POLLINTERVAL, DEFAULTPOLLTIME / 1000);
       this.homey.app.updateLog(`Poll interval to low, setting it to: ${DEFAULTPOLLTIME}`);
     }
@@ -288,7 +228,7 @@ class MyDevice extends Homey.Device {
     return new Promise((resolve, reject) => {
       switch (value) {
         case ALARMSTATE.ARMED:
-          this.setAlarmState(ALARMSTATE.ARMED, this._site.arm.bind(this._site))
+          this.setAlarmState(ALARMSTATE.ARMED, this.homey.app.arm.bind(this.homey.app))
             .then(message => {
               this.homey.app.updateLog(message);
               resolve();
@@ -300,7 +240,7 @@ class MyDevice extends Homey.Device {
             });
           break;
         case ALARMSTATE.DISARMED:
-          this.setAlarmState(ALARMSTATE.DISARMED, this._site.disarm.bind(this._site))
+          this.setAlarmState(ALARMSTATE.DISARMED, this.homey.app.disarm.bind(this.homey.app))
             .then(message => {
               this.homey.app.updateLog(message);
               resolve();
@@ -313,7 +253,7 @@ class MyDevice extends Homey.Device {
           break;
         case ALARMSTATE.PARTIALYARMED.HOMEY:
           // eslint-disable-next-line max-len
-          this.setAlarmState(ALARMSTATE.PARTIALYARMED.HOMEY, this._site.partialArm.bind(this._site))
+          this.setAlarmState(ALARMSTATE.PARTIALYARMED.HOMEY, this.homey.app.partialArm.bind(this.homey.app))
             .then(message => {
               this.homey.app.updateLog(message);
               resolve();
@@ -338,7 +278,7 @@ class MyDevice extends Homey.Device {
   async setAlarmState(state, action) {
     this.homey.app.updateLog('Function setAlarmState start', 2);
     return new Promise((resolve, reject) => {
-      if (!code || code === '') {
+      if (!this.code || this.code === '') {
         const error = new Error('No alarm code set');
         this.setUnavailable(error);
         reject(error);
@@ -346,20 +286,20 @@ class MyDevice extends Homey.Device {
 
       const sleep = m => new Promise(r => setTimeout(r, m));
 
-      action(code)
+      action(this.code)
         .then(() => {
           this.setAvailable();
           resolve(`Successfully set the alarm to: ${state} `);
         })
         .catch(() => {
           sleep(5000).then(() => {
-            action(code)
+            action(this.code)
               .then(() => {
                 resolve(`Successfully set the alarm to: ${state} `);
               })
               .catch(error => {
                 reject(new Error(`Faild to set the alarm to: ${state} `));
-                this.homey.app.updateLog(`Error: ${error}`, 0);
+                this.homey.app.updateLog(`Err19: ${error}`, 0);
                 this.setUnavailable(error);
               });
           });
