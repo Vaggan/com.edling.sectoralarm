@@ -23,14 +23,12 @@ class MyDevice extends Homey.Device {
       await this.homey.app.connectToSite();
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), this.pollInterval);
     } catch(error) {
-      this.homey.app.updateLog("yd get site Err y1: " + error, 0);
+      this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
     };
 
     await this.setInitState();
     this.registerCapabilityListener('locked', this.onCapabilityChanged.bind(this));
-    // this.registerFlowCardCondition();
-    // this.registerFlowCardAction();
   }
 
   async onAdded() {
@@ -91,7 +89,6 @@ class MyDevice extends Homey.Device {
         this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
             this.homey.app.updateLog(`Capability value 'locked' changed to: ${lock.status}`);
-            // this.triggerFlow(lock.state);
           })
           .catch(error => {
             this.homey.app.updateLog(`Could not change lock state to ${lock.status}`);
