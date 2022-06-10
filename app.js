@@ -234,7 +234,7 @@ async function private_sectoralarmWrapper(functioncall) {
         this.updateLog("private_sectoralarmWrapper Unable to log in: " + innerError, 0);
         throw(innerError);
       }
-      if (session_id.match(/(?<=ASPXAUTH=).+(?=;)/)) {
+      if (session_id.match(/(?<=ASPXAUTH=).+(?=; expires)/)) {
         // A valid session id was returned
         if (this._retryLoginCount > 0) {
           this.updateLog("private_sectoralarmWrapper -> Retry communication (" + String(this._retryLoginCount) + ")");
