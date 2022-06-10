@@ -19,6 +19,7 @@ const DEFAULTPOLLTIME = 30000;
 class MyDevice extends Homey.Device {
 
   async onInit() {
+    this._pollcount = 0;
     this.homey.app.updateLog('Function onInit start', 2);
     this.homey.app.updateLog('Control panel device has been inited');
 
@@ -66,6 +67,9 @@ class MyDevice extends Homey.Device {
   async pollAlarmStatus() {
     this.homey.app.updateLog('Function pollAlarmStatus start', 2);
     try {
+      this._pollcount++;
+      if (this._pollcount > 1)
+        throw("Timeout, trying again later")
       await this.CheckSettings();
       this.homey.app.updateLog(`Polling at interval: ${Number(this.pollInterval) / 1000} seconds`, 2);
 
@@ -73,12 +77,14 @@ class MyDevice extends Homey.Device {
       this.homey.app.updateLog(`Current alarm state ${JSON.parse(new_status).armedStatus}`);
       this.onAlarmUpdate(new_status);
       Promise.resolve().catch(this.homey.app.updateLog); // TODO: Where did this code line come from, it looks fishy
+      this.homey.app.updateLog('Function pollAlarmStatus end', 2);
       this.setAvailable();
+      this._pollcount--;
     } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
+      this._pollcount--;
     }
-    this.homey.app.updateLog('Function pollAlarmStatus end', 2);
   }
 
   async CheckSettings() {

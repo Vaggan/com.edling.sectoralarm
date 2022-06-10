@@ -11,6 +11,7 @@ const DEFAULTPOLLTIME = 30000;
 class MyDevice extends Homey.Device {
 
   async onInit() {
+    this._pollcount = 0;
     this.homey.app.updateLog('Yale Doorman device has been initialized');
     this.homey.app.updateLog(`LOCK_ID: ${this.getData().id}`);
 
@@ -49,14 +50,19 @@ class MyDevice extends Homey.Device {
 
   async pollLockStatus() {
     try {
+      this._pollcount++;
+      if (this._pollcount > 1)
+        throw("Timeout, trying again later")
       this.homey.app.updateLog(`pollinterval: ${this.pollInterval}`, 2);
       this.CheckSettings();
       const lock = await this.homey.app.locks(this.getData().id)
       this.onLockUpdate(JSON.parse(lock)[0]);
       this.setAvailable();
+      this._pollcount--;
     } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
+      this._pollcount--;
     }
   }
 
