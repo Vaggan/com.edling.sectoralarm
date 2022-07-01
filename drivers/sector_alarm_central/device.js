@@ -68,8 +68,9 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function pollAlarmStatus start', 2);
     try {
       this._pollcount++;
-      if (this._pollcount > 1)
-        throw("Timeout, trying again later")
+      if (this._pollcount > 1) {
+        throw new Error('Timeout, trying again later');
+      }
       await this.CheckSettings();
       this.homey.app.updateLog(`Polling at interval: ${Number(this.pollInterval) / 1000} seconds`, 2);
 

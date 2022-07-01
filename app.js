@@ -185,9 +185,9 @@ async function privatConnectToSite(app) {
 
     settings.numberOfRetries = 2;
     settings.retryDelayInMs = 3000;
-    app._password = password
-    app._username = username
-    app._siteid = siteid
+    app._password = password;
+    app._username = username;
+    app._siteid = siteid;
 
     await sectoralarm.connect(username, password, siteid, settings)
       .then(site => {
@@ -225,27 +225,25 @@ async function privateSectoralarmWrapper(functioncall) {
     // Upon error retry until we get positive api call response or retry limit is reached
     if (error.code === 'ERR_INVALID_SESSION') {
       this.updateLog('private_sectoralarmWrapper Info: Invalid session, logging back in.');
-      var session_id;
+      let sessionId;
       try {
-        session_id = await this._site.login();
-      } catch(innerError) {
-        this.updateLog("private_sectoralarmWrapper Unable to log in: " + innerError, 0);
-        throw(innerError);
+        sessionId = await this._site.login();
+      } catch (innerError) {
+        this.updateLog(`private_sectoralarmWrapper Unable to log in: ${innerError}`, 0);
+        throw (innerError);
       }
-      if (session_id.match(/(?<=ASPXAUTH=).+(?=; expires)/)) {
+      if (sessionId.match(/(?<=ASPXAUTH=).+(?=; expires)/)) {
         // A valid session id was returned
         if (this._retryLoginCount > 0) {
-          this.updateLog("private_sectoralarmWrapper -> Retry communication (" + String(this._retryLoginCount) + ")");
+          this.updateLog(`private_sectoralarmWrapper -> Retry communication (${String(this._retryLoginCount)})`);
           this._retryLoginCount--;
-          return private_sectoralarmWrapper.apply(this, arguments);
-        } else {
-          this.updateLog("private_sectoralarmWrapper -> number of login retries exceeded");
-          throw(error);
+          return privateSectoralarmWrapper.apply(this, arguments);
         }
+        this.updateLog('private_sectoralarmWrapper -> number of login retries exceeded');
+        throw (error);
       } else {
         // Unable to obtain session cookie, most likely because the user has been blocked
-        throw("Unable to log in. Please check that the user has not been blocked and that the user/password and pin codes are correct");
-
+        throw new Error('Unable to log in. Please check that the user has not been blocked and that the user/password and pin codes are correct');
       }
     } else {
       // Pass on errors

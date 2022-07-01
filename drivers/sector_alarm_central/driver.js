@@ -12,7 +12,7 @@ class MyDriver extends Homey.Driver {
   async onPairListDevices() {
     const username = this.homey.settings.get('username');
     const password = this.homey.settings.get('password');
-    if (username && username === '' || password && password === '') {
+    if ((username && username === '') || (password && password === '')) {
       this.homey.app.updateLog('No credentials, please enter credentials in settings.');
       throw new Error('No credentials, please enter credentials in settings.');
     }

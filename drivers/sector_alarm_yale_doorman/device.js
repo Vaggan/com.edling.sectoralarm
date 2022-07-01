@@ -23,7 +23,7 @@ class MyDevice extends Homey.Device {
     try {
       await this.homey.app.connectToSite();
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), this.pollInterval);
-    } catch(error) {
+    } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
     }
@@ -51,8 +51,9 @@ class MyDevice extends Homey.Device {
   async pollLockStatus() {
     try {
       this._pollcount++;
-      if (this._pollcount > 1)
-        throw("Timeout, trying again later")
+      if (this._pollcount > 1) {
+        throw new Error('Timeout, trying again later');
+      }
       this.homey.app.updateLog(`pollinterval: ${this.pollInterval}`, 2);
       this.CheckSettings();
       const lock = await this.homey.app.locks(this.getData().id);
