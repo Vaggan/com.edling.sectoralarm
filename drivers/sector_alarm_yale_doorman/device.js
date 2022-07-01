@@ -11,6 +11,7 @@ const DEFAULTPOLLTIME = 30000;
 class MyDevice extends Homey.Device {
 
   async onInit() {
+    this._pollcount = 0;
     this.homey.app.updateLog('Yale Doorman device has been initialized');
     this.homey.app.updateLog(`LOCK_ID: ${this.getData().id}`);
 
@@ -22,15 +23,13 @@ class MyDevice extends Homey.Device {
     try {
       await this.homey.app.connectToSite();
       this._pollInterval = setInterval(this.pollLockStatus.bind(this), this.pollInterval);
-    } catch (error) {
-      this.homey.app.updateLog(`yd get site Err y1: ${error}`, 0);
+    } catch(error) {
+      this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
     }
 
     await this.setInitState();
     this.registerCapabilityListener('locked', this.onCapabilityChanged.bind(this));
-    // this.registerFlowCardCondition();
-    // this.registerFlowCardAction();
   }
 
   async onAdded() {
@@ -51,14 +50,19 @@ class MyDevice extends Homey.Device {
 
   async pollLockStatus() {
     try {
+      this._pollcount++;
+      if (this._pollcount > 1)
+        throw("Timeout, trying again later")
       this.homey.app.updateLog(`pollinterval: ${this.pollInterval}`, 2);
       this.CheckSettings();
       const lock = await this.homey.app.locks(this.getData().id);
       this.onLockUpdate(JSON.parse(lock)[0]);
       this.setAvailable();
+      this._pollcount--;
     } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
+      this._pollcount--;
     }
   }
 
@@ -91,7 +95,6 @@ class MyDevice extends Homey.Device {
         this.setCapabilityValue('locked', lock.status === 'locked')
           .then(() => {
             this.homey.app.updateLog(`Capability value 'locked' changed to: ${lock.status}`);
-            // this.triggerFlow(lock.state);
           })
           .catch(error => {
             this.homey.app.updateLog(`Could not change lock state to ${lock.status}`);

@@ -19,6 +19,7 @@ const DEFAULTPOLLTIME = 30000;
 class MyDevice extends Homey.Device {
 
   async onInit() {
+    this._pollcount = 0;
     this.homey.app.updateLog('Function onInit start', 2);
     this.homey.app.updateLog('Control panel device has been inited');
 
@@ -38,8 +39,6 @@ class MyDevice extends Homey.Device {
 
     await this.setInitState();
     this.registerCapabilityListener('homealarm_state', this.onCapabilityChanged.bind(this));
-    this.registerFlowCardCondition();
-    this.registerFlowCardAction();
     this.homey.app.updateLog('Function onInit end', 2);
   }
 
@@ -65,61 +64,12 @@ class MyDevice extends Homey.Device {
     this.homey.app.updateLog('Function setInitState end', 2);
   }
 
-  async registerFlowCardCondition() {
-    this.homey.app.updateLog('Function registerFlowCardCondition start', 2);
-    const alarmStateCondition = this.homey.flow.getConditionCard('homealarm_state_is');
-
-    alarmStateCondition
-      .registerRunListener(async (args, state) => {
-        await this.homey.app.status()
-          .then(async status => {
-            this.homey.app.updateLog(`State ${state}`);
-            this.homey.app.updateLog(`Status ${JSON.parse(status).armedStatus}`);
-            this.homey.app.updateLog(`Alarm state is ${this.getCapabilityValue('homealarm_state')}`);
-            switch (state) {
-              case ALARMSTATE.PARTIALYARMED.SECTOR:
-                return this.getCapabilityValue('homealarm_state') === ALARMSTATE.PARTIALYARMED.HOMEY;
-              default:
-                return this.getCapabilityValue('homealarm_state') === state;
-            }
-          })
-          .catch(error => {
-            this.homey.app.updateLog(error, 0);
-            this.setUnavailable(error);
-          });
-      });
-    this.homey.app.updateLog('Function registerFlowCardCondition end', 2);
-  }
-
-  async registerFlowCardAction() {
-    this.homey.app.updateLog('Function registerFLowCardAction start', 2);
-    const alarmStateAction = this.homey.flow.getActionCard('set_homealarm_state');
-    alarmStateAction
-      .registerRunListener(async (args, state) => {
-        switch (state) {
-          case ALARMSTATE.ARMED:
-            this.homey.app.updateLog('Arming');
-            this.homey.app.arm(this.code);
-            break;
-          case ALARMSTATE.DISARMED:
-            this.homey.app.updateLog('Disarming');
-            this.homey.app.disarm(this.code);
-            break;
-          case ALARMSTATE.PARTIALYARMED.HOMEY:
-            this.homey.app.updateLog('Arming perimeter');
-            this.homey.app.partialArm(this.code);
-            break;
-          default:
-            this.homey.app.updateLog('No action taken');
-            break;
-        }
-      });
-    this.homey.app.updateLog('Function registerFLowCardAction end', 2);
-  }
-
   async pollAlarmStatus() {
     this.homey.app.updateLog('Function pollAlarmStatus start', 2);
     try {
+      this._pollcount++;
+      if (this._pollcount > 1)
+        throw("Timeout, trying again later")
       await this.CheckSettings();
       this.homey.app.updateLog(`Polling at interval: ${Number(this.pollInterval) / 1000} seconds`, 2);
 
@@ -127,12 +77,14 @@ class MyDevice extends Homey.Device {
       this.homey.app.updateLog(`Current alarm state ${JSON.parse(newStatus).armedStatus}`);
       this.onAlarmUpdate(newStatus);
       Promise.resolve().catch(this.homey.app.updateLog); // TODO: Where did this code line come from, it looks fishy
+      this.homey.app.updateLog('Function pollAlarmStatus end', 2);
       this.setAvailable();
+      this._pollcount--;
     } catch (error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
+      this._pollcount--;
     }
-    this.homey.app.updateLog('Function pollAlarmStatus end', 2);
   }
 
   async CheckSettings() {
@@ -178,7 +130,6 @@ class MyDevice extends Homey.Device {
         this.setCapabilityValue('homealarm_state', armedState)
           .then(() => {
             this.homey.app.updateLog(`Trigger flow with state: ${armedState}`);
-            this.triggerFlow(armedState);
           })
           .catch(error => {
             this.homey.app.updateLog(error, 0);
@@ -190,25 +141,6 @@ class MyDevice extends Homey.Device {
       this.setUnavailable(error);
     }
     this.homey.app.updateLog('Function onAlarmUpdate end', 2);
-  }
-
-  triggerFlow(triggeredState) {
-    this.homey.app.updateLog('Function triggerFlow start', 2);
-    try {
-      const state = { state: triggeredState };
-      const stateChangedTrigger = this.homey.flow.getTriggerCard('homealarm_state_changed');
-      stateChangedTrigger
-        .trigger(null, state)
-        .then(this.homey.app.updateLog(`Flow homealarm_state_changed triggered whith state: ${triggeredState} `))
-        .catch(error => {
-          this.homey.app.updateLog(error, 0);
-          this.setUnavailable(error);
-        });
-    } catch (error) {
-      this.homey.app.updateLog(error, 0);
-      this.setUnavailable(error);
-    }
-    this.homey.app.updateLog('Function triggerFlow end', 2);
   }
 
   onAdded() {

@@ -64,45 +64,6 @@
       "capabilities": [
         "homealarm_state"
       ],
-      "capabilitiesOptions": {
-        "homealarm_state": {
-          "type": "enum",
-          "title": {
-            "en": "Home Alarm state",
-            "sv": "Hemlarmsstatus",
-            "no": "Alarm status"
-          },
-          "values": [
-            {
-              "id": "armed",
-              "title": {
-                "en": "Armed",
-                "sv": "Larmat",
-                "no": "Armert"
-              }
-            },
-            {
-              "id": "disarmed",
-              "title": {
-                "en": "Disarmed",
-                "sv": "Avlarmat",
-                "no": "Avslått"
-              }
-            },
-            {
-              "id": "partially_armed",
-              "title": {
-                "en": "Partially armed",
-                "sv": "Skalskydd",
-                "no": "Delvis armert"
-              }
-            }
-          ],
-          "getable": true,
-          "setable": true,
-          "uiComponent": "picker"
-        }
-      },
       "images": {
         "large": "/drivers/sector_alarm_central/assets/images/large.png",
         "small": "/drivers/sector_alarm_central/assets/images/small.png"
@@ -130,59 +91,6 @@
       "capabilities": [
         "locked"
       ],
-      "capabilitiesOptions": {
-        "locked": {
-          "type": "boolean",
-          "title": {
-            "en": "Locked",
-            "nl": "Op slot",
-            "de": "Verriegelt",
-            "fr": "Verrouillé",
-            "it": "Chiusa",
-            "sv": "Låst",
-            "no": "Låst",
-            "es": "Cerrada",
-            "da": "Låst"
-          },
-          "desc": {
-            "en": "True when the lock is locked",
-            "nl": "Geeft aan wanneer iets op slot is",
-            "de": "True, wenn das Schloss verriegelt ist",
-            "fr": "Vrai, si le verrou est verrouillé",
-            "it": "Vero quando la serratura è chiusa",
-            "sv": "Sant när låset är låst",
-            "no": "Sant når låsen er låst",
-            "es": "Verdadero cuando la cerradura está cerrada",
-            "da": "Sandt, når låsen er låst"
-          },
-          "insights": true,
-          "insightsTitleTrue": {
-            "en": "Locked",
-            "nl": "Vergrendeld",
-            "de": "Verriegelt",
-            "fr": "Verrouillé",
-            "it": "Chiusa",
-            "sv": "Låst",
-            "no": "Låst",
-            "es": "Cerrada",
-            "da": "Låst"
-          },
-          "insightsTitleFalse": {
-            "en": "Unlocked",
-            "nl": "Ontgrendeld",
-            "de": "Entriegelt",
-            "fr": "Déverrouillé",
-            "it": "Aperta",
-            "sv": "Olåst",
-            "no": "Ulåst",
-            "es": "Abierta",
-            "da": "Ulåst"
-          },
-          "getable": true,
-          "setable": true,
-          "uiComponent": "toggle"
-        }
-      },
       "images": {
         "large": "/drivers/sector_alarm_yale_doorman/assets/images/large.png",
         "small": "/drivers/sector_alarm_yale_doorman/assets/images/small.png"
@@ -202,151 +110,304 @@
       ]
     }
   ],
+  "capabilities": {
+    "homealarm_state": {
+      "type": "enum",
+      "title": {
+        "en": "The home alarm is",
+        "nl": "Thuisalarm status is",
+        "de": "Heim-Alarm-Status ist",
+        "fr": "Etat de l'alarme de maison est",
+        "it": "Stato dell'allarme domestico è",
+        "sv": "Hemlarmets status är",
+        "no": "Boligalarmen er",
+        "es": "Estado de la alarma doméstica es",
+        "da": "Hjemmealarmstatus er",
+        "ru": "Состояние домашней сигнализации является",
+        "pl": "Stan alarmu domowego to"
+      },
+      "values": [
+        {
+          "id": "armed",
+          "title": {
+            "en": "Armed",
+            "nl": "Geactiveerd",
+            "de": "scharf",
+            "fr": "Armé",
+            "it": "Attivato",
+            "sv": "Larmat",
+            "no": "Aktivert",
+            "es": "Activada",
+            "da": "Aktiveret",
+            "ru": "Готова",
+            "pl": "Uzbrojony"
+          }
+        },
+        {
+          "id": "disarmed",
+          "title": {
+            "en": "Disarmed",
+            "nl": "Gedeactiveerd",
+            "de": "unscharf",
+            "fr": "Désarmé",
+            "it": "Disattivato",
+            "sv": "Avlarmat",
+            "no": "Deaktivert",
+            "es": "Desactivada",
+            "da": "Deaktiveret",
+            "ru": "не готова",
+            "pl": "rozbrojony"
+          }
+        },
+        {
+          "id": "partially_armed",
+          "title": {
+            "en": "Partially armed",
+            "nl": "Deels geactiveerd",
+            "de": "teilweise scharf",
+            "fr": "Partiellement armé",
+            "it": "Parzialmente attivato",
+            "sv": "Delvis larmat",
+            "no": "Delvis aktivert",
+            "es": "Parcialmente activada",
+            "da": "Delvist aktiveret",
+            "ru": "Частично готова",
+            "pl": "Częściowo uzbrojony"
+          }
+        }
+      ],
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "$flow": {
+        "triggers": [
+          {
+            "id": "homealarm_state_changed",
+            "title": {
+              "en": "The state changed to",
+              "nl": "De status is veranderd in",
+              "de": "Der Status hat sich geändert in",
+              "fr": "L'état a été modifié en",
+              "it": "Lo stato è cambiato in",
+              "sv": "Statusen ändrad till",
+              "no": "Statusen ble endret til",
+              "es": "El estado ha cambiado a",
+              "da": "Status ændret til",
+              "ru": "Состояние изменено на",
+              "pl": "Zmiana stanu na"
+            },
+            "args": [
+              {
+                "name": "state",
+                "type": "dropdown",
+                "values": [
+                  {
+                    "id": "armed",
+                    "title": {
+                      "en": "Armed",
+                      "nl": "Geactiveerd",
+                      "de": "scharf",
+                      "fr": "Armé",
+                      "it": "Attivato",
+                      "sv": "Larmat",
+                      "no": "Aktivert",
+                      "es": "Activada",
+                      "da": "Aktiveret",
+                      "ru": "Готова",
+                      "pl": "Uzbrojony"
+                    }
+                  },
+                  {
+                    "id": "disarmed",
+                    "title": {
+                      "en": "Disarmed",
+                      "nl": "Gedeactiveerd",
+                      "de": "unscharf",
+                      "fr": "Désarmé",
+                      "it": "Disattivato",
+                      "sv": "Avlarmat",
+                      "no": "Deaktivert",
+                      "es": "Desactivada",
+                      "da": "Deaktiveret",
+                      "ru": "не готова",
+                      "pl": "rozbrojony"
+                    }
+                  },
+                  {
+                    "id": "partially_armed",
+                    "title": {
+                      "en": "Partially armed",
+                      "nl": "Deels geactiveerd",
+                      "de": "teilweise scharf",
+                      "fr": "Partiellement armé",
+                      "it": "Parzialmente attivato",
+                      "sv": "Delvis larmat",
+                      "no": "Delvis aktivert",
+                      "es": "Parcialmente activada",
+                      "da": "Delvist aktiveret",
+                      "ru": "Частично готова",
+                      "pl": "Częściowo uzbrojony"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "conditions": [
+          {
+            "id": "homealarm_state_is",
+            "title": {
+              "en": "The state is !{{|not}}",
+              "nl": "De status is !{{|niet}}",
+              "de": "Der Status ist !{{|nicht}}",
+              "fr": "L'état !{{est|n'est pas}}",
+              "it": "Lo stato è !{{|non}}",
+              "sv": "Statusen är !{{|inte}}",
+              "no": "Statusen er !{{|ikke}}",
+              "es": "El estado !{{|no}} es",
+              "da": "Status er !{{|ikke}}",
+              "ru": "Состояние — !{{|не}}",
+              "pl": "Stan to !{{|nie}}"
+            },
+            "args": [
+              {
+                "name": "state",
+                "type": "dropdown",
+                "values": [
+                  {
+                    "id": "armed",
+                    "title": {
+                      "en": "Armed",
+                      "nl": "Geactiveerd",
+                      "de": "scharf",
+                      "fr": "Armé",
+                      "it": "Attivato",
+                      "sv": "Larmat",
+                      "no": "Aktivert",
+                      "es": "Activada",
+                      "da": "Aktiveret",
+                      "ru": "Готова",
+                      "pl": "Uzbrojony"
+                    }
+                  },
+                  {
+                    "id": "disarmed",
+                    "title": {
+                      "en": "Disarmed",
+                      "nl": "Gedeactiveerd",
+                      "de": "unscharf",
+                      "fr": "Désarmé",
+                      "it": "Disattivato",
+                      "sv": "Avlarmat",
+                      "no": "Deaktivert",
+                      "es": "Desactivada",
+                      "da": "Deaktiveret",
+                      "ru": "не готова",
+                      "pl": "rozbrojony"
+                    }
+                  },
+                  {
+                    "id": "partially_armed",
+                    "title": {
+                      "en": "Partially armed",
+                      "nl": "Deels geactiveerd",
+                      "de": "teilweise scharf",
+                      "fr": "Partiellement armé",
+                      "it": "Parzialmente attivato",
+                      "sv": "Delvis larmat",
+                      "no": "Delvis aktivert",
+                      "es": "Parcialmente activada",
+                      "da": "Delvist aktiveret",
+                      "ru": "Частично готова",
+                      "pl": "Częściowo uzbrojony"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "actions": [
+          {
+            "id": "set_homealarm_state",
+            "title": {
+              "en": "Set state to",
+              "nl": "Zet de status in",
+              "de": "Status setzen in",
+              "fr": "Définir l'état en",
+              "it": "Imposta stato in",
+              "sv": "Ställ in status till",
+              "no": "Innstill status til",
+              "es": "Definir estado a",
+              "da": "Indstil status til",
+              "ru": "Установить состояние на",
+              "pl": "Ustaw stan na"
+            },
+            "args": [
+              {
+                "name": "state",
+                "type": "dropdown",
+                "values": [
+                  {
+                    "id": "armed",
+                    "title": {
+                      "en": "Armed",
+                      "nl": "Geactiveerd",
+                      "de": "scharf",
+                      "fr": "Armé",
+                      "it": "Attivato",
+                      "sv": "Larmat",
+                      "no": "Aktivert",
+                      "es": "Activada",
+                      "da": "Aktiveret",
+                      "ru": "Готова",
+                      "pl": "Uzbrojony"
+                    }
+                  },
+                  {
+                    "id": "disarmed",
+                    "title": {
+                      "en": "Disarmed",
+                      "nl": "Gedeactiveerd",
+                      "de": "unscharf",
+                      "fr": "Désarmé",
+                      "it": "Disattivato",
+                      "sv": "Avlarmat",
+                      "no": "Deaktivert",
+                      "es": "Desactivada",
+                      "da": "Deaktiveret",
+                      "ru": "не готова",
+                      "pl": "rozbrojony"
+                    }
+                  },
+                  {
+                    "id": "partially_armed",
+                    "title": {
+                      "en": "Partially armed",
+                      "nl": "Deels geactiveerd",
+                      "de": "teilweise scharf",
+                      "fr": "Partiellement armé",
+                      "it": "Parzialmente attivato",
+                      "sv": "Delvis larmat",
+                      "no": "Delvis aktivert",
+                      "es": "Parcialmente activada",
+                      "da": "Delvist aktiveret",
+                      "ru": "Частично готова",
+                      "pl": "Częściowo uzbrojony"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
   "flow": {
-    "triggers": [
-      {
-        "id": "homealarm_state_changed",
-        "title": {
-          "en": "The state changed",
-          "sv": "Statusen ändrad",
-          "no": "Endret status"
-        },
-        "titleFormatted": {
-          "en": "The state changed to [[state]]",
-          "sv": "Statusen ändrades till [[state]]"
-        },
-        "args": [
-          {
-            "name": "state",
-            "type": "dropdown",
-            "values": [
-              {
-                "id": "armed",
-                "title": {
-                  "en": "Armed",
-                  "sv": "Larmat",
-                  "no": "Armert"
-                }
-              },
-              {
-                "id": "disarmed",
-                "title": {
-                  "en": "Disarmed",
-                  "sv": "Avlarmat",
-                  "no": "Avslått"
-                }
-              },
-              {
-                "id": "partially_armed",
-                "title": {
-                  "en": "Partially armed",
-                  "sv": "Skalskydd",
-                  "no": "Skallsikring"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "conditions": [
-      {
-        "id": "homealarm_state_is",
-        "title": {
-          "en": "The state is !{{|not}}",
-          "sv": "Statusen är !{{|inte}}",
-          "no": "Statusen är !{{|ikke}}"
-        },
-        "titleFormatted": {
-          "en": "The state is [[state]]",
-          "sv": "Statusen är [[state]]",
-          "no": "Statusen er [[state]]"
-        },
-        "args": [
-          {
-            "name": "state",
-            "type": "dropdown",
-            "values": [
-              {
-                "id": "armed",
-                "title": {
-                  "en": "Armed",
-                  "sv": "Larmat",
-                  "no": "Armert"
-                }
-              },
-              {
-                "id": "disarmed",
-                "title": {
-                  "en": "Disarmed",
-                  "sv": "Avlarmat",
-                  "no": "Avslått"
-                }
-              },
-              {
-                "id": "partially_armed",
-                "title": {
-                  "en": "Partially armed",
-                  "sv": "Skalskydd",
-                  "no": "Skallsikring"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    "actions": [
-      {
-        "id": "set_homealarm_state",
-        "title": {
-          "en": "Set state",
-          "sv": "Ställ in status",
-          "no": "Endre status"
-        },
-        "titleFormatted": {
-          "en": "Set [[device]] state [[state]]",
-          "sv": "Sätt statusen för [[device]] till [[state]]",
-          "no": "Sett statusen for [[device]] til [[state]]"
-        },
-        "args": [
-          {
-            "name": "device",
-            "type": "device",
-            "filter": "class=homealarm&capabilities=homealarm_state"
-          },
-          {
-            "name": "state",
-            "type": "dropdown",
-            "values": [
-              {
-                "id": "armed",
-                "title": {
-                  "en": "Armed",
-                  "sv": "Larmat",
-                  "no": "Armert"
-                }
-              },
-              {
-                "id": "disarmed",
-                "title": {
-                  "en": "Disarmed",
-                  "sv": "Avlarmat",
-                  "no": "Avslått"
-                }
-              },
-              {
-                "id": "partially_armed",
-                "title": {
-                  "en": "Partially armed",
-                  "sv": "Skalskydd",
-                  "no": "Skallsikring"
-                }
-              }
-            ]
-          }
-        ]
-      }
-    ]
+    "triggers": [],
+    "conditions": [],
+    "actions": []
   }
 }

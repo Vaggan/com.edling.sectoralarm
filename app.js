@@ -182,11 +182,12 @@ async function privatConnectToSite(app) {
     || app._username !== username
     || app._siteid !== siteid) {
     const settings = await sectoralarm.createSettings();
-    settings.numberOfRetries = 10;
-    settings.retryDelayInMs = 5000;
-    app._password = password;
-    app._username = username;
-    app._siteid = siteid;
+
+    settings.numberOfRetries = 2;
+    settings.retryDelayInMs = 3000;
+    app._password = password
+    app._username = username
+    app._siteid = siteid
 
     await sectoralarm.connect(username, password, siteid, settings)
       .then(site => {
@@ -223,21 +224,28 @@ async function privateSectoralarmWrapper(functioncall) {
   } catch (error) {
     // Upon error retry until we get positive api call response or retry limit is reached
     if (error.code === 'ERR_INVALID_SESSION') {
-      this.updateLog('privateSectoralarmWrapper Info: Invalid session, logging back in.');
-      if (this._retryLoginCount > 0) {
-        this.updateLog(`privateSectoralarmWrapper -> Retry logon (${String(this._retryLoginCount)})`);
-        this._retryLoginCount--;
-
-        try {
-          await this._site.login();
-          return privateSectoralarmWrapper.apply(this, arguments);
-        } catch (innerError) {
-          this.updateLog(`privateSectoralarmWrapper Error getting status: ${innerError}`, 0);
-          throw (innerError);
+      this.updateLog('private_sectoralarmWrapper Info: Invalid session, logging back in.');
+      var session_id;
+      try {
+        session_id = await this._site.login();
+      } catch(innerError) {
+        this.updateLog("private_sectoralarmWrapper Unable to log in: " + innerError, 0);
+        throw(innerError);
+      }
+      if (session_id.match(/(?<=ASPXAUTH=).+(?=; expires)/)) {
+        // A valid session id was returned
+        if (this._retryLoginCount > 0) {
+          this.updateLog("private_sectoralarmWrapper -> Retry communication (" + String(this._retryLoginCount) + ")");
+          this._retryLoginCount--;
+          return private_sectoralarmWrapper.apply(this, arguments);
+        } else {
+          this.updateLog("private_sectoralarmWrapper -> number of login retries exceeded");
+          throw(error);
         }
       } else {
-        this.updateLog(`privateSectoralarmWrapper -> inner err code was: ${error.code}`, 0);
-        throw (error);
+        // Unable to obtain session cookie, most likely because the user has been blocked
+        throw("Unable to log in. Please check that the user has not been blocked and that the user/password and pin codes are correct");
+
       }
     } else {
       // Pass on errors
