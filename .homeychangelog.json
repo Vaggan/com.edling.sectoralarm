@@ -39,5 +39,10 @@
     "en": "Fixed problems with stability, Added Norwegian translations, Fixed bugs",
     "sv": "Fixade problem med stabilitet, tillagda norska översättningar, Fixade buggar",
     "no": "Rettet problemer med stabilitet, Lagt til norske oversettelser, Rettet feil"
+  },
+  "0.1.6": {
+    "en": "Fixed stability issues, improved flow management",
+    "sv": "Fixat stabilitets problem, förbättrat flow hantering",
+    "no": "Rettet stabilitetsproblemer, forbedret flow styring"
   }
 }

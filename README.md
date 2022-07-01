@@ -29,6 +29,10 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
+##### Version: 0.1.6
+- Fixed stability issues
+- Improved flow management
+
 ##### Version: 0.1.5
 - Fixed problems with stability
 - Added Norwegian translations
