@@ -45,15 +45,15 @@ class MyDevice extends Homey.Device {
   async setInitState() {
     this.homey.app.updateLog('Function setInitState start', 2);
     try {
-      const new_status = await this.homey.app.status()
+      const newStatus = await this.homey.app.status();
       let armedState;
-      this.homey.app.updateLog(`Alarm state from Sector Alarm ${JSON.parse(new_status).armedStatus}`, 2);
-      switch (JSON.parse(new_status).armedStatus) {
+      this.homey.app.updateLog(`Alarm state from Sector Alarm ${JSON.parse(newStatus).armedStatus}`, 2);
+      switch (JSON.parse(newStatus).armedStatus) {
         case ALARMSTATE.PARTIALYARMED.SECTOR:
           armedState = ALARMSTATE.PARTIALYARMED.HOMEY;
           break;
         default:
-          armedState = JSON.parse(new_status).armedStatus;
+          armedState = JSON.parse(newStatus).armedStatus;
       }
       this.homey.app.updateLog(`Set initial alarm state to ${armedState}`);
       this.setCapabilityValue('homealarm_state', armedState);
@@ -73,9 +73,9 @@ class MyDevice extends Homey.Device {
       await this.CheckSettings();
       this.homey.app.updateLog(`Polling at interval: ${Number(this.pollInterval) / 1000} seconds`, 2);
 
-      const new_status = await this.homey.app.status();
-      this.homey.app.updateLog(`Current alarm state ${JSON.parse(new_status).armedStatus}`);
-      this.onAlarmUpdate(new_status);
+      const newStatus = await this.homey.app.status();
+      this.homey.app.updateLog(`Current alarm state ${JSON.parse(newStatus).armedStatus}`);
+      this.onAlarmUpdate(newStatus);
       Promise.resolve().catch(this.homey.app.updateLog); // TODO: Where did this code line come from, it looks fishy
       this.homey.app.updateLog('Function pollAlarmStatus end', 2);
       this.setAvailable();

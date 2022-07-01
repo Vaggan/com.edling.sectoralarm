@@ -29,6 +29,11 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
+##### Version: 0.1.5
+- Fixed problems with stability
+- Added Norwegian translations
+- Fixed bugs
+
 ##### Version: 0.1.4
 - Bug fixes
 

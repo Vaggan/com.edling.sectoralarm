@@ -26,7 +26,7 @@ class MyDevice extends Homey.Device {
     } catch(error) {
       this.homey.app.updateLog(error, 0);
       this.setUnavailable(error);
-    };
+    }
 
     await this.setInitState();
     this.registerCapabilityListener('locked', this.onCapabilityChanged.bind(this));
@@ -38,7 +38,7 @@ class MyDevice extends Homey.Device {
 
   async setInitState() {
     try {
-      const lock = await this.homey.app.locks(this.getData().id)
+      const lock = await this.homey.app.locks(this.getData().id);
       this.homey.app.updateLog(`Set initial lock state to: ${lock.state}`);
       this.setCapabilityValue('locked', lock.state === 'locked');
       this.setAvailable();
@@ -55,7 +55,7 @@ class MyDevice extends Homey.Device {
         throw("Timeout, trying again later")
       this.homey.app.updateLog(`pollinterval: ${this.pollInterval}`, 2);
       this.CheckSettings();
-      const lock = await this.homey.app.locks(this.getData().id)
+      const lock = await this.homey.app.locks(this.getData().id);
       this.onLockUpdate(JSON.parse(lock)[0]);
       this.setAvailable();
       this._pollcount--;
