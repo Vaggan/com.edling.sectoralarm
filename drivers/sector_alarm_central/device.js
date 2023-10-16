@@ -146,7 +146,7 @@ class MyDevice extends Homey.Device {
       this.CheckSettings();
       this.homey.app.updateLog(`Polling att interval: ${Number(pollInterval) / 1000} seconds`, 2);
 
-      if(!this._site){
+      if (!this._site) {
         await this.connectToSite();
       }
 
@@ -316,7 +316,7 @@ class MyDevice extends Homey.Device {
   async setAlarmState(state, action) {
     this.homey.app.updateLog('Function setAlarmState start', 2);
     return new Promise((resolve, reject) => {
-     if (!code || code === '') {
+      if (!code || code === '') {
         reject(new Error('No alarm code set'));
       }
 
@@ -332,7 +332,7 @@ class MyDevice extends Homey.Device {
               .then(() => {
                 resolve(`Successfully set the alarm to: ${state} `);
               })
-              .catch((error) => {
+              .catch(error => {
                 reject(new Error(`Faild to set the alarm to: ${state} `));
                 this.homey.app.updateLog(`Error: ${error}`, 0);
               });
