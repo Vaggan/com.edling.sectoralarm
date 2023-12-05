@@ -29,7 +29,7 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
-#### Version: 0.1.6
+#### Version: 0.1.7
 - Potential problem when switching to new alarm system fixed
 
 ##### Version: 0.1.4
