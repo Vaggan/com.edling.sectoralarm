@@ -29,6 +29,9 @@ If you like the app, you can always donate so i can keep improving it :)
 ---
 ### Changelog
 
+#### Version: 0.1.5
+- Potential problem when switching to new alarm system fixed
+
 ##### Version: 0.1.4
 - Bug fixes
 
