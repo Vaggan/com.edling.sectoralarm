@@ -1,5 +1,8 @@
 # Sector Alarm
 
+:warning: __Sector Alarm has changed its API and this makes this app no longer work.
+I have been in contact with them to see if a solution can be found but it does not look bright.__ :warning:
+
 Add suppor for Sctor Alarm home security to Homey.
 
 ### Features:
