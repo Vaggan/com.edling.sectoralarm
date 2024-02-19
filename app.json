@@ -1,6 +1,6 @@
 {
   "id": "com.edling.sectoralarm",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "brandColor": "#FF1C1C",
